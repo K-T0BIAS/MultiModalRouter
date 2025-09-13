@@ -78,6 +78,13 @@ if __name__ == "__main__":
         if hub.id in ["SFO", "OAK"]:
             print(hub.id, hub.lat, hub.lng)
 
+    # test finding the closest hub of type x to a point
+    lat = 37.6
+    lng = -122.
+    hub_type = "airport"
+    closest_hub = graph.findClosestHub(allowedHubTypes=[hub_type], lat=lat, lon=lng)
+    print(f"The closest {hub_type} hub to ({lat}, {lng}) is {closest_hub.id}")
+
 
  
 
