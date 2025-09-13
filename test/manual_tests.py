@@ -1,4 +1,4 @@
-from ..graph.graph import RouteGraph
+from graph.graph import RouteGraph
 import os
 
 if __name__ == "__main__":

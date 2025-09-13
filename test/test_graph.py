@@ -1,14 +1,14 @@
 import unittest
 import os
-from ..graph.graph import RouteGraph
-from ..graph.dataclasses import Hub
+from graph.graph import RouteGraph
+from graph.dataclasses import Hub
 
 class TestRouteGraph(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         path = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(path, "..", "data", "graph2.dill")
+        path = os.path.join(path, "..", "data", "graph.dill")
         cls.graph_file = path 
         cls.graph = RouteGraph.load(cls.graph_file, compressed=False)
 
@@ -16,7 +16,6 @@ class TestRouteGraph(unittest.TestCase):
         # Ensure graph is loaded
         self.assertIsInstance(self.graph, RouteGraph)
         self.assertTrue(len(self.graph.Graph) > 0)
-        self.graph.debug_hubs_and_edges()
 
     def test_hubs_exist(self):
         # Test that hubs exist in the graph
@@ -70,9 +69,9 @@ class TestRouteGraph(unittest.TestCase):
         start_id = hubs[0].id
         end_id = hubs[1].id
 
-        results = self.graph.compare_routes(start_id, end_id)
+        results = self.graph.compare_routes(start_id, end_id, allowed_modes=["fly"])
         self.assertIsInstance(results, dict)
-        self.assertTrue(all(isinstance(r, type(self.graph.find_shortest_path(start_id, end_id))) 
+        self.assertTrue(all(isinstance(r, type(self.graph.find_shortest_path(start_id, end_id, allowed_modes=["fly"]))) 
                             for r in results.values()))
 
 if __name__ == "__main__":
