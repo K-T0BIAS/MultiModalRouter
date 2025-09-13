@@ -42,6 +42,31 @@ class RouteGraph:
 
     # =========== public helpers ==========
 
+    def findClosestHub(self, allowedHubTypes: list[str], lat: float, lon: float) -> Hub | None:
+        """
+        Find the closest hub of a given type to a given location.
+
+        Args:
+            hubType: Type of hub to find
+            lat: Latitude of the location
+            lon: Longitude of the location
+
+        Returns:
+            Hub instance if found, None otherwise
+        """
+        potentialHubs = []
+        for hubType in allowedHubTypes:
+            potentialHubs.extend(self.Graph.get(hubType, {}).values())
+
+        if not potentialHubs:
+            return None
+        
+        tempHub = Hub(lat=lat, lng=lon, hubType="temp", id="temp") #create a temp hub for the start point
+        distances = self._hubToHubDistances([tempHub], potentialHubs).flatten()  # shape (n,)
+        closest_hub = potentialHubs[distances.argmin()]
+        return closest_hub
+
+
     def addHub(self, hub: Hub):
         """
         Add a hub to the graph. If the hub already exists, it will not be added a second time.
