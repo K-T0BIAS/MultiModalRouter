@@ -389,8 +389,9 @@ class RouteGraph:
         return None
     
 
-    def compare_routes(self, start_id: str, end_id: str, 
-                      metrics_to_compare: list[OptimizationMetric] = None) -> dict[OptimizationMetric, Route]:
+    def compare_routes(self, start_id: str, end_id: str, allowed_modes: list[str],
+                      metrics_to_compare: list[OptimizationMetric] = None
+                      ) -> dict[OptimizationMetric, Route]:
         """
         Find optimal routes for different metrics and compare them
         
@@ -402,7 +403,7 @@ class RouteGraph:
         
         results = {}
         for metric in metrics_to_compare:
-            route = self.find_shortest_path(start_id, end_id, optimization_metric=metric)
+            route = self.find_shortest_path(start_id, end_id, optimization_metric=metric, allowed_modes=allowed_modes)
             if route:
                 results[metric] = route
         
