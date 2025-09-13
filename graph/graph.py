@@ -106,6 +106,7 @@ class RouteGraph:
             - Compressed: <filename>.zlib
             - Uncompressed: <filename>.dill
         """
+        dataPath = os.path.join(os.path.dirname(__file__), "..", "data", filename)
         # unused
         if saveMode is not None:
             self.saveMode = saveMode
@@ -115,10 +116,10 @@ class RouteGraph:
         pickled = dill.dumps(self)
         if compressed:
             compressed = zlib.compress(pickled)
-            with open(filename + ".zlib", "wb") as f:
+            with open(dataPath + ".zlib", "wb") as f:
                 f.write(compressed)
         else:
-            with open(filename + ".dill", "wb") as f:
+            with open(dataPath + ".dill", "wb") as f:
                 f.write(pickled)
 
     @staticmethod
