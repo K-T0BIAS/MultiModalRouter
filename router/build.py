@@ -23,6 +23,13 @@ def main():
         help="Whether to compress the saved graph (default: False)"
     )
 
+    parser.add_argument(
+        "--extraMetrics",
+        nargs="+",
+        default=[],
+        help="Extra metrics to add to the edge metadata"
+    )
+
     args = parser.parse_args()
 
     if len(args.data) % 3 != 0:
@@ -42,6 +49,7 @@ def main():
         dataPaths=dataPaths,
         saveMode="light", # unused
         compressed=args.compressed,
+        extraMetricsKeys=args.extraMetrics
     )
 
     graph.build()
