@@ -74,4 +74,9 @@ class Route:
             return []
         # get all source hubs plus the final destination
         return [start for start, _ in self.path] + ([self.path[-1][0]] if self.path else [])
+    
+@dataclass
+class VerboseRoute(Route):
+    """Uses base Route class but adds additional info to hold the edge metadata for every leg"""
+    path: list[tuple[str, str, EdgeMetadata]]
 

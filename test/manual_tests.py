@@ -51,15 +51,15 @@ if __name__ == "__main__":
 
     start_id = "SFO"
     end_id = "OAK" 
-    
+
     modes = ["drive"]
 
     # Find shortest path by driving
     route = graph.find_shortest_path(
         start_id=start_id,
         end_id=end_id,
-        allowed_modes=modes,  # only consider driving
-        max_segments=20           # increase if necessary
+        allowed_modes=modes, 
+        max_segments=20   
     )
 
     if route:
