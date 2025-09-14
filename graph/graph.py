@@ -64,8 +64,12 @@ class RouteGraph:
             Hub instance if found, None otherwise
         """
         potentialHubs = []
-        for hubType in allowedHubTypes:
-            potentialHubs.extend(self.Graph.get(hubType, {}).values())
+        if allowedHubTypes is not None:
+            for hubType in allowedHubTypes:
+                potentialHubs.extend(self.Graph.get(hubType, {}).values())
+
+        if allowedHubTypes is None:
+            potentialHubs = list(self._allHubs())
 
         if not potentialHubs:
             return None

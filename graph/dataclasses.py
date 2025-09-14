@@ -16,7 +16,13 @@ class EdgeMetadata:
         self.transportMode = transportMode
         self.metrics = metrics  # e.g., {"distance": 12.3, "time": 15} NOTE distance is required by the graph
 
-    def getMetric(self, metric: OptimizationMetric):
+    def getMetric(self, metric: OptimizationMetric | str):
+        if isinstance(metric, str):
+            value = self.metrics.get(metric)
+            if value is None:
+                raise KeyError(f"Metric '{metric}' not found in EdgeMetadata")
+            return value
+        
         value = self.metrics.get(metric.value)
         if value is None:
             raise KeyError(f"Metric '{metric.value}' not found in EdgeMetadata")
