@@ -7,8 +7,8 @@ if __name__ == "__main__":
         maxDistance=50,
         transportModes={"airport": "fly", },
         dataPaths={"airport": os.path.join(path, "..", "data", "fullDataset.parquet")},
-        saveMode="light",
-        compressed=False
+        compressed=False,
+        extraMetricsKeys=["type_x"]
     )
 
     graph.build()
@@ -51,11 +51,7 @@ if __name__ == "__main__":
 
     start_id = "SFO"
     end_id = "OAK" 
-
-    for hub in graph._allHubs():
-        if "drive" in hub.outgoing:
-            print(f"{hub.id} can drive to {list(hub.outgoing['drive'].keys())}")
-
+    
     modes = ["drive"]
 
     # Find shortest path by driving
@@ -73,10 +69,6 @@ if __name__ == "__main__":
         print("Total metrics:", route.totalMetrics)
     else:
         print(f"2 No route found from {start_id} to {end_id} using {modes}")
-
-    for hub in graph._allHubs():
-        if hub.id in ["SFO", "OAK"]:
-            print(hub.id, hub.lat, hub.lng)
 
     # test finding the closest hub of type x to a point
     lat = 37.6
