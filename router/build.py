@@ -30,6 +30,13 @@ def main():
         help="Extra metrics to add to the edge metadata"
     )
 
+    parser.add_argument(
+        "--drivingEnabled",
+        action="store_true",
+        default=True,
+        help="Whether to connect hubs with driving edges (default: True)"
+    )
+
     args = parser.parse_args()
 
     if len(args.data) % 3 != 0:
@@ -47,9 +54,9 @@ def main():
         maxDistance=args.maxDist,
         transportModes=transportModes,
         dataPaths=dataPaths,
-        saveMode="light", # unused
         compressed=args.compressed,
-        extraMetricsKeys=args.extraMetrics
+        extraMetricsKeys=args.extraMetrics,
+        drivingEnabled=args.drivingEnabled  
     )
 
     graph.build()

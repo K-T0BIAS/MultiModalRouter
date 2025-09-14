@@ -15,11 +15,13 @@ class RouteGraph:
                  transportModes: dict[str, str], # dict like {hubtype -> "airport": "fly", "shippingport": "shipping"}
                  dataPaths: dict[str, str] = {}, # dict like {hubtype -> "airport": path -> "airports.csv", "shippingport": "shippingports.csv"}
                  compressed: bool = False, # if true model file will be compressed otherwise normal .dill file
-                 extraMetricsKeys: list[str] = [] # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
+                 extraMetricsKeys: list[str] = [], # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
+                 drivingEnabled: bool = True, # if true will connect hubs with driving edges
                 ):
 
         self.compressed = compressed
         self.extraMetricsKeys = extraMetricsKeys
+        self.drivingEnabled = drivingEnabled
 
         self.TransportModes = transportModes
         self.Graph: dict[str, dict[str, Hub]] = {}
@@ -302,6 +304,11 @@ class RouteGraph:
 
     def build(self):
         self._generateHubs()
+        # exit here if not driving edges are allowed
+        if not self.drivingEnabled:
+            return
+
+        # build driving edges
         hubTypes = list(self.Graph.keys())
         for i, hubType1 in enumerate(hubTypes):
             hubs1 = list(self.Graph[hubType1].values())
@@ -322,6 +329,7 @@ class RouteGraph:
                                 mode="drive",  # explicitly set driving
                                 distance=d,
                                 bidirectional=True,
+                                # no extra metrics for default drive nodes
                             )
 
     def find_shortest_path(self, start_id: str, end_id: str, 
