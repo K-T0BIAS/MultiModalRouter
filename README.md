@@ -21,7 +21,7 @@ Each Hub includes:
 * outgoing: dict[str, dict[str, EdgeMetadata]] — a dictionary of transport modes mapping to destinations and their edge metadata
 
 Example:
-
+```text
 outgoing = {
     "drive": {
         "SFO": EdgeMetadata(distance=50, time=60),
@@ -31,6 +31,7 @@ outgoing = {
         "YEG": EdgeMetadata(distance=1500, time=180),
     }
 }
+```
 
 ---
 
