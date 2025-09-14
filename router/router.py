@@ -29,6 +29,17 @@ def main():
         default=["drive"],
         help="Allowed transport modes"
     )
+    parser.add_argument(
+        "--maxSegments",
+        type=int,
+        default=10,
+        help="Maximum number of segments in the route"
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Verbose output for the paths"
+    )
     args = parser.parse_args()
 
     start_lat, start_lng = args.start
@@ -41,8 +52,12 @@ def main():
         print("One of the airports does not exist in the graph")
         return
 
-    route = graph.find_shortest_path(start_hub.id, end_hub.id, args.allowedModes)
-    print(route)
+    route = graph.find_shortest_path(start_id=start_hub.id, 
+                                     end_id=end_hub.id, 
+                                     allowed_modes=args.allowedModes, 
+                                     max_segments=args.maxSegments, 
+                                     verbose=args.verbose)
+    print(route.flatPath)
 
 if __name__ == "__main__":
     main()
