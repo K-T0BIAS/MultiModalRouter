@@ -149,6 +149,18 @@ Start: SJC
 
 ---
 
+## Demo
+
+For a small demo setup for the graph check out this [demo](./demo/demo.py)
+
+> RUN from root:
+
+```text
+python -m demo.demo
+```
+
+---
+
 ## Notes & Tips
 
 * Ensure your datasets include the required fields
