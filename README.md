@@ -127,10 +127,24 @@ Parameters:
 * --start — latitude and longitude of the starting location
 * --end — latitude and longitude of the destination
 * --allowedModes — list of transport modes allowed for routing (e.g., fly, drive)
+* --verbose — optional flag to show edge data in the output route (default off)
 
 Example:
 
-coming soon
+```txt
+python -m router.router --start 37 -122 --end 12 -112 --allowedModes drive fly --verbose
+```
+
+> Output:
+
+```text
+Start: SJC
+    Edge: (transportMode=fly, metrics={'distance': 495.72859107916463, 'type_x': 'large_airport', 'source_name': 'Norman Y. Mineta San Jose International Airport', 'type_y': 'large_airport', 'destination_name': 'Los Angeles International Airport'})
+-> LAX
+    Edge: (transportMode=fly, metrics={'distance': 2141.2374356273763, 'type_x': 'large_airport', 'source_name': 'Los Angeles International Airport', 'type_y': 'medium_airport', 'destination_name': 'Playa de Oro International Airport'})
+-> ZLO
+
+```
 
 ---
 
