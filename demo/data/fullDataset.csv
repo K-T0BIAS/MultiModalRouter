@@ -1,0 +1,26 @@
+type_x,source_name,source_lat,source_lng,source,type_y,destination_name,destination_lat,destination_lng,destination,distance
+small_airport,Nunapitchuk Airport,60.905591,-162.440454,NUP,medium_airport,Bethel Airport,60.77980042,-161.8379974,BET,35.50891861257026
+small_airport,Nunapitchuk Airport,60.905591,-162.440454,NUP,small_airport,Atmautluak Airport,60.866699,-162.272996,ATT,10.038962939026435
+seaplane_base,Port Protection Seaplane Base,56.328800201416,-133.61000061035,PPV,medium_airport,Ketchikan International Airport,55.35559845,-131.7140045,KTN,160.3721674641772
+small_airport,Atmautluak Airport,60.866699,-162.272996,ATT,small_airport,Kasigluk Airport,60.872747,-162.5247,KUK,13.641155702721525
+small_airport,Atmautluak Airport,60.866699,-162.272996,ATT,medium_airport,Bethel Airport,60.77980042,-161.8379974,BET,25.48337320882719
+small_airport,Ouzinkie Airport,57.942094,-152.464314,KOZ,small_airport,Port Lions Airport,57.884905,-152.847719,ORI,23.522288770693002
+small_airport,Ouzinkie Airport,57.942094,-152.464314,KOZ,medium_airport,Kodiak Airport,57.75,-152.4940033,ADQ,21.432013590596263
+small_airport,Tununak Airport,60.569638,-165.246649,TNK,small_airport,Mertarvik Airport,60.81037,-164.499511,WWT,48.68780922120069
+small_airport,Tununak Airport,60.569638,-165.246649,TNK,small_airport,Mertarvik Airport,60.81037,-164.499511,WWT,48.68780922120069
+small_airport,Minto Al Wright Airport,65.147991,-149.368658,MNT,medium_airport,Fairbanks International Airport,64.815102,-147.856003,FAI,80.18507978147673
+seaplane_base,Whale Pass Seaplane Float Harbor Facility,56.116299,-133.121994,WWP,seaplane_base,Naukati Bay Seaplane Base,55.849602,-133.227994,NKI,30.379585733808945
+small_airport,Chuathbaluk Airport,61.579102,-159.216003,CHU,small_airport,Crooked Creek Airport,61.870315,-158.137636,CKD,65.38238505420615
+small_airport,Levelock Airport,59.12606,-156.860906,KLL,small_airport,Igiugig Airport,59.324001,-155.901993,IGG,58.828992456169594
+small_airport,Tuntutuliak Airport,60.351243,-162.654476,WTL,small_airport,Kongiganak Airport,59.9608,-162.880997,KKH,45.188440482713354
+small_airport,Tuntutuliak Airport,60.351243,-162.654476,WTL,medium_airport,Bethel Airport,60.77980042,-161.8379974,BET,65.2786595888185
+small_airport,Chignik Lake Airport,56.2550010681,-158.774993896,KCQ,small_airport,Perryville Airport,55.9065,-159.16091,KPV,45.55296472659558
+small_airport,Ulawa Airport,-9.86054358262,161.979546547,RNA,large_airport,Honiara International Airport,-9.428,160.054993,HIR,216.38820067708903
+small_airport,Ulawa Airport,-9.86054358262,161.979546547,RNA,small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,66.11653988838862
+small_airport,Uru Harbour Airport,-8.87333,161.011002,ATD,large_airport,Honiara International Airport,-9.428,160.054993,HIR,121.73124157936162
+small_airport,Bellona/Anua Airport,-11.3022222222,159.798333333,BNY,large_airport,Honiara International Airport,-9.428,160.054993,HIR,210.28617119708878
+small_airport,Bellona/Anua Airport,-11.3022222222,159.798333333,BNY,small_airport,Rennell/Tingoa Airport,-11.55,160.062778,RNL,39.87237198952627
+small_airport,Choiseul Bay Airport,-6.711944,156.396111,CHY,small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,162.5049617838888
+small_airport,Fera/Maringe Airport,-8.1075,159.576996,FRE,large_airport,Honiara International Airport,-9.428,160.054993,HIR,155.94596147929755
+small_airport,Fera/Maringe Airport,-8.1075,159.576996,FRE,small_airport,Suavanao Airport,-7.58556,158.731003,VAO,109.78386316421907
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Bauerfield International Airport,-17.699301,168.320007,VLI,1281.5410455884694
