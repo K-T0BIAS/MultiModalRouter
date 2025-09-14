@@ -1,3 +1,8 @@
+# preprocessor.py
+# Copyright (c) 2025 Tobias Karusseit
+# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+
 import pandas as pd
 import os
 

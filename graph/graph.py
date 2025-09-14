@@ -1,3 +1,8 @@
+# graph.py
+# Copyright (c) 2025 Tobias Karusseit
+# Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+
 from collections import defaultdict
 from tqdm import tqdm
 import zlib

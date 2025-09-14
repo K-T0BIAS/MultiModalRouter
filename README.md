@@ -156,4 +156,8 @@ Start: SJC
 * You can pass multiple allowed modes in --allowedModes for flexible routing.
 * The graph can be compressed using the --compressed flag to save space.
 
+### License
+
+[see here](./LICENSE.md)
+
 
