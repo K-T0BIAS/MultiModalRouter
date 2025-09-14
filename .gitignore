@@ -1,6 +1,9 @@
-*/venv
+/venv
 */__pycache__
-*/data
+/data
 *.csv
 *.parquet
 *.dill
+/tsp
+/toDo
+
