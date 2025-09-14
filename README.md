@@ -107,10 +107,12 @@ Parameters:
 * pathToDataX — path to the dataset file
 * --maxDist — maximum distance to connect hubs with driving edges (default 50)
 * --compressed — optional flag to compress the saved graph
+* --extraMetrics — optional list of keys from the dataset that will be added to the edgeMetadata if present (e.g., "time", "cost")
+* --drivingEnabled — optional value to disable the building of driving edges (default True)
 
 Example:
 
-python -m router.build airport fly data/fullDataset.parquet port drive data/ports.csv --maxDist 100 --compressed
+python -m router.build airport fly data/fullDataset.parquet port drive data/ports.csv --maxDist 100 --compressed --extraMetrics time
 
 ---
 
