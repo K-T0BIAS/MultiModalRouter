@@ -14,13 +14,12 @@ class RouteGraph:
                  maxDistance: float, # sets the max distance to connect hubs with driving edges
                  transportModes: dict[str, str], # dict like {hubtype -> "airport": "fly", "shippingport": "shipping"}
                  dataPaths: dict[str, str] = {}, # dict like {hubtype -> "airport": path -> "airports.csv", "shippingport": "shippingports.csv"}
-                 saveMode: str = "light", # unused
-                 compressed: bool = False # if true model file will be compressed otherwise normal .dill file
-                 
+                 compressed: bool = False, # if true model file will be compressed otherwise normal .dill file
+                 extraMetricsKeys: list[str] = [] # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
                 ):
 
-        self.saveMode = saveMode
         self.compressed = compressed
+        self.extraMetricsKeys = extraMetricsKeys
 
         self.TransportModes = transportModes
         self.Graph: dict[str, dict[str, Hub]] = {}
@@ -225,7 +224,17 @@ class RouteGraph:
                 "destination_lat", "destination_lng",
                 "distance"
             }
-            extra_metric_cols = [col for col in data.columns if col not in required_cols]
+
+            # collect extra data from the dataset columns that are not required but marked as extra
+            extra_metric_cols = []
+            for m in self.extraMetricsKeys:
+                if m not in required_cols:
+                    try:
+                        extra_metric_cols.append(m)
+                    except:
+                        continue
+
+            # extra_metric_cols = [col for col in data.columns if col not in required_cols and col in extraMetricsKeys]
 
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
@@ -312,12 +321,12 @@ class RouteGraph:
                                 hub2=hub2,
                                 mode="drive",  # explicitly set driving
                                 distance=d,
-                                bidirectional=True
+                                bidirectional=True,
                             )
 
     def find_shortest_path(self, start_id: str, end_id: str, 
                           allowed_modes: list[str],
-                          optimization_metric: OptimizationMetric = OptimizationMetric.DISTANCE,
+                          optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
                           max_segments: int = 10) -> Route | None:
         """
         Find the optimal path between two hubs using Dijkstra
@@ -343,6 +352,7 @@ class RouteGraph:
             raise ValueError(f"End hub '{end_id}' not found in graph")
         
         if start_id == end_id:
+            # create a route with only the start hub
             return Route(
                 path=[(start_id, "")], 
                 total_metrics=EdgeMetadata(),
@@ -351,10 +361,11 @@ class RouteGraph:
         
         # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
         pq = [(0.0, start_id, [(start_id, "")], EdgeMetadata())]
-        visited = {}
+        visited = {} # dict like {hub_id : metric_value}
         
         while pq:
             # get the current path data
+            # optim metric,         hub id,       path with modes, accumulated metrics (edgeMetadata object)
             current_metric_value, current_hub_id, path_with_modes, accumulated_metrics = heapq.heappop(pq)
             
             # skip this if a better path exists
