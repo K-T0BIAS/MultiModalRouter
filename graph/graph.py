@@ -11,6 +11,7 @@ import heapq
 import os
 import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route
+from threading import Lock
 
 
 class RouteGraph:
@@ -37,6 +38,8 @@ class RouteGraph:
             self.Graph[key] = {} 
 
         self.maxDrivingDistance = maxDistance
+
+        self._lock = Lock()
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -83,15 +86,16 @@ class RouteGraph:
         Returns:
             None
         """
-        hubType = hub.hubType 
-        # if the hub type doesnt exist in the graph, create it first
-        if hubType not in self.Graph:
-            self.Graph[hubType] = {}
-        # exit if the hub already exists
-        if hub.id in self.Graph[hubType]:
-            return
-        # add the hub
-        self.Graph[hubType][hub.id] = hub
+        with self._lock:
+            hubType = hub.hubType 
+            # if the hub type doesnt exist in the graph, create it first
+            if hubType not in self.Graph:
+                self.Graph[hubType] = {}
+            # exit if the hub already exists
+            if hub.id in self.Graph[hubType]:
+                return
+            # add the hub
+            self.Graph[hubType][hub.id] = hub
 
 
     def getHub(self, hubType: str, id: str) -> Hub | None:
@@ -137,21 +141,22 @@ class RouteGraph:
             - Compressed: <filename>.zlib
             - Uncompressed: <filename>.dill
         """
-        dataPath = os.path.join(os.path.dirname(__file__), "..", "data", filename)
-        # unused
-        if saveMode is not None:
-            self.saveMode = saveMode
-        # ensure correct compression type is set for loading the graph
-        self.compressed = compressed
-        # save the graph
-        pickled = dill.dumps(self)
-        if compressed:
-            compressed = zlib.compress(pickled)
-            with open(dataPath + ".zlib", "wb") as f:
-                f.write(compressed)
-        else:
-            with open(dataPath + ".dill", "wb") as f:
-                f.write(pickled)
+        with self._lock:
+            dataPath = os.path.join(os.path.dirname(__file__), "..", "data", filename)
+            # unused
+            if saveMode is not None:
+                self.saveMode = saveMode
+            # ensure correct compression type is set for loading the graph
+            self.compressed = compressed
+            # save the graph
+            pickled = dill.dumps(self)
+            if compressed:
+                compressed = zlib.compress(pickled)
+                with open(dataPath + ".zlib", "wb") as f:
+                    f.write(compressed)
+            else:
+                with open(dataPath + ".dill", "wb") as f:
+                    f.write(pickled)
 
     @staticmethod
     def load(filename: str, compressed: bool = False) -> "RouteGraph":
@@ -187,14 +192,15 @@ class RouteGraph:
         """
         Add a connection between two hubs, dynamically storing extra metrics.
         """
-        if extraData is None:
-            extraData = {}
-        # combine required metrics with extra
-        metrics = {"distance": distance, **extraData}
-        edge = EdgeMetadata(transportMode=mode, **metrics)
-        hub1.addOutgoing(mode, hub2.id, edge)
-        if bidirectional:
-            hub2.addOutgoing(mode, hub1.id, edge.copy())
+        with self._lock:
+            if extraData is None:
+                extraData = {}
+            # combine required metrics with extra
+            metrics = {"distance": distance, **extraData}
+            edge = EdgeMetadata(transportMode=mode, **metrics)
+            hub1.addOutgoing(mode, hub2.id, edge)
+            if bidirectional:
+                hub2.addOutgoing(mode, hub1.id, edge.copy())
 
 
 
@@ -220,6 +226,7 @@ class RouteGraph:
         Generate Hub instances and link them with EdgeMetadata.
         Extra columns in the data will be added to EdgeMetadata dynamically.
         """
+        # no lock needed since underlying methods have locks
         for hubType in self.Graph.keys():
             data = self._loadData(hubType)
             added = set()
