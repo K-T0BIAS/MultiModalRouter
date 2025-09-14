@@ -335,7 +335,9 @@ class RouteGraph:
     def find_shortest_path(self, start_id: str, end_id: str, 
                           allowed_modes: list[str],
                           optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
-                          max_segments: int = 10) -> Route | None:
+                          max_segments: int = 10,
+                          verbose: bool = False
+                          ) -> Route | None:
         """
         Find the optimal path between two hubs using Dijkstra
         
@@ -361,14 +363,21 @@ class RouteGraph:
         
         if start_id == end_id:
             # create a route with only the start hub
+            # no verbose since no edges are needed
             return Route(
                 path=[(start_id, "")], 
-                total_metrics=EdgeMetadata(),
-                optimization_metric=optimization_metric
+                totalMetrics=EdgeMetadata(),
+                optimizedMetric=optimization_metric,
+                verbose=False
             )
         
-        # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
-        pq = [(0.0, start_id, [(start_id, "")], EdgeMetadata())]
+        if verbose:
+            # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
+            pq = [(0.0, start_id, [(start_id, "", EdgeMetadata())], EdgeMetadata())]
+        else: 
+            # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
+            pq = [(0.0, start_id, [(start_id, "")], EdgeMetadata())]
+
         visited = {} # dict like {hub_id : metric_value}
         
         while pq:
@@ -384,10 +393,17 @@ class RouteGraph:
             
             # check if this is the end hub
             if current_hub_id == end_id:
+                if verbose:
+                    return Route(
+                        path=path_with_modes, 
+                        totalMetrics=accumulated_metrics,
+                        optimizedMetric=optimization_metric,
+                    )
+                
                 return Route(
                     path=path_with_modes, 
                     totalMetrics=accumulated_metrics,
-                    optimizedMetric=optimization_metric
+                    optimizedMetric=optimization_metric,
                 )
             
             # skip if too many segments
@@ -426,7 +442,10 @@ class RouteGraph:
                                 new_accumulated_metrics.metrics[metric_name] = metric_value
 
                         # combine to form a new path
-                        new_path = path_with_modes + [(next_hub_id, mode)]
+                        if verbose:
+                            new_path = path_with_modes + [(next_hub_id, mode, connection_metrics)]
+                        else:
+                            new_path = path_with_modes + [(next_hub_id, mode)]
                         # push to the priority queue for future exploration
                         heapq.heappush(pq, (new_metric_value, next_hub_id, new_path, new_accumulated_metrics))
         

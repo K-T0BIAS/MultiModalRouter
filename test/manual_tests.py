@@ -38,13 +38,15 @@ if __name__ == "__main__":
         start_id=start_airport_id,
         end_id=end_airport_id,
         allowed_modes=modes,
-        max_segments=10  # adjust if needed
+        max_segments=10,
+        verbose=True
     )
 
     if route:
         print(f"Route found from {start_airport_id} to {end_airport_id}:")
-        for leg_id, leg_mode in route.path:
-            print(f" -> {leg_id} ({leg_mode})")
+        # for leg_id, leg_mode in route.path:
+        #     print(f" -> {leg_id} ({leg_mode})")
+        print(route.flatPath)
         print("Total metrics:", route.totalMetrics)
     else:
         print(f"No route found from {start_airport_id} to {end_airport_id} using {modes}")
@@ -59,7 +61,7 @@ if __name__ == "__main__":
         start_id=start_id,
         end_id=end_id,
         allowed_modes=modes, 
-        max_segments=20   
+        max_segments=20,
     )
 
     if route:

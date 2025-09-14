@@ -68,12 +68,25 @@ class Route:
         return self.totalMetrics.getMetric(self.optimizedMetric)
     
     @property
-    def flatPath(self):
+    def flatPath(self, toStr=True):
         """Flatten the path into a list of hub IDs"""
         if not self.path:
             return []
         # get all source hubs plus the final destination
-        return [start for start, _ in self.path] + ([self.path[-1][0]] if self.path else [])
+        path = [edge for edge in self.path]
+        if not toStr:
+            return path
+        pathStr = ""
+        for i, edge in enumerate(path):
+            if i == 0:
+                pathStr += f"Start: {edge[0]}"
+                continue
+
+            if len(edge) > 2 and isinstance(edge[2], EdgeMetadata):
+                pathStr += f"\n\tEdge: ({str(edge[2])})\n-> {edge[0]}"
+            else:
+                pathStr += f"{edge[0]} -> {edge[1]}"
+        return pathStr
     
 @dataclass
 class VerboseRoute(Route):
