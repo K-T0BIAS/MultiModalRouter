@@ -5,7 +5,7 @@
 # data optained from open flight data
 # https://openflights.org/data.php
 
-from graph.graph import RouteGraph
+from multimodalrouter import RouteGraph
 import os
 
 if __name__ == "__main__":

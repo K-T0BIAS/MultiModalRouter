@@ -40,7 +40,7 @@ requires-python = ">=3.9"
 
 
 [project.optional-dependencies]
-ml = ["torch>=2.8.0"] 
+torch = ["torch>=2.8.0"] 
 
 [tool.setuptools]
 package-dir = {"" = "src"}
