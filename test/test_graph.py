@@ -5,8 +5,7 @@
 
 import unittest
 import os
-from graph.graph import RouteGraph
-from graph.dataclasses import Hub
+from src.multimodalrouter.graph.graph import RouteGraph, Hub
 
 class TestRouteGraph(unittest.TestCase):
 

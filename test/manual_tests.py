@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 
-from graph.graph import RouteGraph
+from src.multimodalrouter.graph.graph import RouteGraph
 import os
 
 if __name__ == "__main__":
