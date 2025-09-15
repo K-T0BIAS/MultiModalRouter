@@ -1,4 +1,4 @@
-[HOME](../docs/index.md)
+[HOME](../README.md)
 
 # Installation Guide
 
