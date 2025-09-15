@@ -1,10 +1,15 @@
 /venv
 */__pycache__
+*\__pycache__
 /data
+\data
 *.csv
 *.parquet
 *.dill
 /tsp
+\tsp
 /toDo
+\toDo
 /api
+\api
 
