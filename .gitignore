@@ -1,15 +1,42 @@
-/venv
-*/__pycache__
-*\__pycache__
-/data
-\data
+# venvs
+venv/
+.env/
+.venv/
+
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# runtime
+data/
+graph_data/
+
+# temp / work in progress
+tsp/
+toDo/
+
+# work in progress
+api/
+
+# pkg / dist
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+*.egg-link
+
+# editor
+.vscode/
+.idea/
+
+# os
+.DS_Store
+
+# data
 *.csv
 *.parquet
 *.dill
-/tsp
-\tsp
-/toDo
-\toDo
-/api
-\api
+
 
