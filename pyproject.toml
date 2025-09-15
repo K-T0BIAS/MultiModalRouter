@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "multiModalRouter"
+name = "multimodalrouter"
 version = "0.1.0"
 description = "A graph-based routing library for dynamic routing."
 readme = "README.md"
@@ -38,15 +38,15 @@ dependencies = [
 
 requires-python = ">=3.9"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["utils", "graph"]
 
 [project.optional-dependencies]
 ml = ["torch>=2.8.0"] 
 
-# cli extension to help run the routing and building scripts 
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["multimodalrouter", "multimodalrouter.graph", "multimodalrouter.router"]
+
 [project.scripts]
-multiModalRouter-build = "router.build:main"
-multiModalRouter-route = "router.route:main"
+multiModalRouter-build = "multimodalrouter.router.build:main"
+multiModalRouter-route = "multimodalrouter.router.route:main"
 

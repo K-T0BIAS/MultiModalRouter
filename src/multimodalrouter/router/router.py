@@ -3,12 +3,12 @@
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 
-from graph.graph import RouteGraph
+from ..graph import RouteGraph
 import argparse
 import os
 
 def main():
-    graph = RouteGraph.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "graph.dill"), compressed=False)
+    graph = RouteGraph.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "data", "graph.dill"), compressed=False)
 
     parser = argparse.ArgumentParser(
         description="parse the arguments"

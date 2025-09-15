@@ -132,7 +132,7 @@ class RouteGraph:
         return None
     
 
-    def save(self, filepath: str = os.path.join(os.getcwd(),"..","..", "data"), saveMode: str = None, compressed: bool = False):
+    def save(self, filepath: str = os.path.join(os.getcwd(), "..", "..", "..", "data"), saveMode: str = None, compressed: bool = False):
         """
         Save the RouteGraph to a file.
 

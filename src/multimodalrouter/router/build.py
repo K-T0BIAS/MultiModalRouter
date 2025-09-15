@@ -2,7 +2,7 @@
 # Copyright (c) 2025 Tobias Karusseit
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-from graph.graph import RouteGraph
+from ..graph import RouteGraph
 import argparse
 import os
 
@@ -45,7 +45,7 @@ def main():
     parser.add_argument(
         "--Dir",
         type=str,
-        default=os.path.join(path, "..", "..", "data"),
+        default=os.path.join(path, "..", "..", "..", "data"),
         help="Directory to save the graph in (default: .)"
     )
 
