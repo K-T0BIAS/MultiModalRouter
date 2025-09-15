@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multiModalRouter"
+version = "0.1.0"
+description = "A graph-based routing library for dynamic routing."
+readme = "README.md"
+license = { file = "LICENSE.md" }
+authors = [
+  { name="Tobias Karusseit", email="karusseittobi@gmail.com" }
+]
+dependencies = [
+    "colorama>=0.4.6",
+    "dill>=0.4.0",
+    "filelock>=3.19.1",
+    "fsspec>=2025.9.0",
+    "Jinja2>=3.1.6",
+    "MarkupSafe>=3.0.2",
+    "mpmath>=1.3.0",
+    "networkx>=3.5",
+    "numpy>=2.3.3",
+    "pandas>=2.3.2",
+    "parquet>=1.3.1",
+    "ply>=3.11",
+    "pyarrow>=21.0.0",
+    "python-dateutil>=2.9.0.post0",
+    "pytz>=2025.2",
+    "setuptools>=80.9.0",
+    "six>=1.17.0",
+    "sympy>=1.14.0",
+    "thriftpy2>=0.5.3",
+    "tqdm>=4.67.1",
+    "typing_extensions>=4.15.0",
+    "tzdata>=2025.2",
+]
+
+requires-python = ">=3.9"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["utils", "graph"]
+
+[project.optional-dependencies]
+ml = ["torch>=2.8.0"] 
+
+# cli extension to help run the routing and building scripts 
+[project.scripts]
+multiModalRouter-build = "router.build:main"
+multiModalRouter-route = "router.route:main"
+

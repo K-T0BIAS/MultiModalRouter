@@ -132,21 +132,20 @@ class RouteGraph:
         return None
     
 
-    def save(self, filename: str, saveMode: str = None, compressed: bool = False):
+    def save(self, filepath: str = os.path.join(os.getcwd(),"..","..", "data"), saveMode: str = None, compressed: bool = False):
         """
         Save the RouteGraph to a file.
 
         Args:
-            filename (str): Path to save the graph to.
+            filepath (str): Path to save the graph to.
             saveMode (str, optional): Unused. Defaults to None.
             compressed (bool, optional): Whether to compress the saved graph. Defaults to False.
 
         Note: The graph is saved in the following format:
-            - Compressed: <filename>.zlib
-            - Uncompressed: <filename>.dill
+            - Compressed: <filepath>.zlib
+            - Uncompressed: <filepath>.dill
         """
         with self._lock:
-            dataPath = os.path.join(os.path.dirname(__file__), "..", "data", filename)
             # unused
             if saveMode is not None:
                 self.saveMode = saveMode
@@ -156,25 +155,25 @@ class RouteGraph:
             pickled = dill.dumps(self)
             if compressed:
                 compressed = zlib.compress(pickled)
-                with open(dataPath + ".zlib", "wb") as f:
+                with open(os.path.join(filepath, "graph.zlib"), "wb") as f:
                     f.write(compressed)
             else:
-                with open(dataPath + ".dill", "wb") as f:
+                with open(os.path.join(filepath, "graph.dill"), "wb") as f:
                     f.write(pickled)
 
     @staticmethod
-    def load(filename: str, compressed: bool = False) -> "RouteGraph":
+    def load(filepath: str, compressed: bool = False) -> "RouteGraph":
         """
         Load a RouteGraph from a file.
 
         Args:
-            filename (str): Path to load the graph from.
+            filepath (str): Path to load the graph from.
             compressed (bool, optional): Whether the saved graph is compressed. Defaults to False.
 
         Returns:
             RouteGraph: The loaded graph.
         """
-        with open(filename, "rb") as f:
+        with open(filepath, "rb") as f:
             file_data = f.read()
             if compressed:
                 decompressed = zlib.decompress(file_data)

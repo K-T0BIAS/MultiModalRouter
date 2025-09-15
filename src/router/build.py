@@ -4,6 +4,7 @@
 
 from graph.graph import RouteGraph
 import argparse
+import os
 
 def main():
     print("Building graph...")
@@ -40,6 +41,13 @@ def main():
         default=True,
         help="Whether to connect hubs with driving edges (default: True)"
     )
+    path = os.path.dirname(os.path.abspath(__file__))
+    parser.add_argument(
+        "--Dir",
+        type=str,
+        default=os.path.join(path, "..", "..", "data"),
+        help="Directory to save the graph in (default: .)"
+    )
 
     args = parser.parse_args()
 
@@ -64,7 +72,7 @@ def main():
     )
 
     graph.build()
-    graph.save("graph", saveMode="light", compressed=args.compressed)
+    graph.save(filepath=args.Dir, saveMode="light", compressed=args.compressed)
 
     print("Graph built and saved.")
 
