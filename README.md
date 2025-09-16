@@ -8,11 +8,9 @@ The Multi Modal Router is a graph-based routing engine that allows you to build 
 
 [installation guide](./docs/installation.md)
 
-[usage guide](./docs/usage.md)
+[graph module documentation](./docs/graph.md)
 
 [code examples](./docs/examples/demo.py)
-
-[graph module documentation](./docs/graph.md)
 
 [command line interface documentation](./docs/cli.md)
 
