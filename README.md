@@ -31,7 +31,7 @@ The graph can be build from any data aslong as the required fields are present. 
     - `finds` the shortest way to get from any point `A` to any other point `B` in the network
     - you can checkout a simple example implementation for a maze pathfinder [here](./docs/examples/mazePathfinder/main.py)
 
-    -  ![example from the maze solver](./docs/solvedMaze1.png)
+![example from the maze solver](./docs/solvedMaze1.png)
 
 ## Important considerations for your usecase
 
