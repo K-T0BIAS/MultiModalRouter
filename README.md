@@ -17,6 +17,7 @@ The graph can be build from any data aslong as the required fields are present. 
     - builds a graph with `airport` [Hubs](./docs/graph.md#hub)
     - connects `airports` based on flight routes
     - `finds` the `shortest flights` or `multi leg routes` to get from `A` to `B`
+    - simple example implementation [here](./docs/examples/flightRouter/main.py)
 
 - social relation ship graph
     - uses user data like a social network where users are connected through others via a group of other users
@@ -28,6 +29,9 @@ The graph can be build from any data aslong as the required fields are present. 
     - uses a predefined path network (e.g. a simple maze)
     - `builds` the garph representation of the network
     - `finds` the shortest way to get from any point `A` to any other point `B` in the network
+    - you can checkout a simple example implementation for a maze pathfinder [here](./docs/examples/mazePathfinder/main.py)
+
+    -  ![example from the maze solver](./docs/solvedMaze1.png)
 
 ## Important considerations for your usecase
 
