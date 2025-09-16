@@ -157,6 +157,7 @@ class RouteGraph:
 
             # ensure correct compression type is set for loading the graph
             self.compressed = compressed
+            os.makedirs(filepath, exist_ok=True)
             # save the graph
             pickled = dill.dumps(self)
             if compressed:
@@ -347,7 +348,7 @@ class RouteGraph:
                             self._addLink(
                                 hub1=hub1,
                                 hub2=hub2,
-                                mode="drive",  # explicitly set driving
+                                mode="car",  # explicitly set driving
                                 distance=d,
                                 bidirectional=True,
                                 # no extra metrics for default drive nodes
@@ -389,7 +390,6 @@ class RouteGraph:
                 path=[(start_id, "")], 
                 totalMetrics=EdgeMetadata(),
                 optimizedMetric=optimization_metric,
-                verbose=False
             )
         
         if verbose:

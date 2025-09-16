@@ -31,7 +31,7 @@ def main():
         "--allowedModes",
         nargs="+",
         type=str,
-        default=["drive"],
+        default=["car"],
         help="Allowed transport modes"
     )
     parser.add_argument(
@@ -62,7 +62,8 @@ def main():
                                      allowed_modes=args.allowedModes, 
                                      max_segments=args.maxSegments, 
                                      verbose=args.verbose)
-    print(route.flatPath)
+    
+    print(route.flatPath if route else "No route found")
 
 if __name__ == "__main__":
     main()

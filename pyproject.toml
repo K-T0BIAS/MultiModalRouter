@@ -44,7 +44,7 @@ torch = ["torch>=2.8.0"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["multimodalrouter", "multimodalrouter.graph", "multimodalrouter.router"]
+packages = ["multimodalrouter", "multimodalrouter.graph", "multimodalrouter.router", "multimodalrouter.utils"]
 
 [project.scripts]
 multiModalRouter-build = "multimodalrouter.router.build:main"

@@ -297,6 +297,10 @@ specialGraph._hubToHubDistances = types.MethodType(myDistanceMetric, specialGrap
 graph.build()
 ```
 
+#### NOTES
+
+- Naturally you can do the same thing for the preprocessor to calculate the transport mode based distances in the preprocessessing step.
+
 ---
 ---
 ---
@@ -405,6 +409,32 @@ def getMetric(
 ---
 
 ### Route
+
+A dataclass to store all route related data; like Hubs and edges.
+
+
+#### fields
+
+```python
+path: list[tuple[str, str]]
+totalMetrics: EdgeMetadata
+optimizedMetric: OptimizationMetric
+```
+
+
+#### properties
+---
+
+```
+@property
+    def flatPath(
+        self, 
+        toStr=True):
+```
+
+By calling `route.flatPath` you will get the string representation of the route 
+
+#### example 
 
 
 

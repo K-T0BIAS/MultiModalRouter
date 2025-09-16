@@ -72,7 +72,7 @@ def main():
     )
 
     graph.build()
-    graph.save(filepath=args.Dir, saveMode="light", compressed=args.compressed)
+    graph.save(filepath=args.Dir, compressed=args.compressed)
 
     print("Graph built and saved.")
 
