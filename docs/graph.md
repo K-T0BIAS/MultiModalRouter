@@ -272,6 +272,33 @@ This will add your Hub to the garph and if its already present it will fail sile
 
 ---
 ---
+
+### advanced options
+
+#### swap distance method
+
+When your dataset comes with neither distances nor a coordinate system in degrees you can mount your own distance function. This way you will still be able to build the default driving edges etc.
+
+#### example
+
+```python
+from multimodalrouter import RouteGraph
+import types
+# define your own distance metric (NOTE the arguments must be the same as here)
+def myDistancMetric(self, hub1: list[Hub], hub2: list[Hub]):
+    ...
+    return distances # np.array or list
+
+# create a normal graph object 
+specialGraph = RouteGraph(**kwargs)
+# swap the distance method
+specialGraph._hubToHubDistances = types.MethodType(myDistanceMetric, specialGraph)
+# continue as you would normally
+graph.build()
+```
+
+---
+---
 ---
 
 ## Dataclasses

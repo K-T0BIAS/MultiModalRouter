@@ -42,6 +42,7 @@ Depending on your usecase and datasets some faetures may not be usable (NOTE: ro
 |      YES         |      degrees      |      None         |        None|
 |      YES|not degrees| runtime distance calculations| [drivingEnabled = False](./docs/graph.md#args)|
 | NO | degrees | None | distances must be calculated when [preprocessing](./src/multimodalrouter/utils/preprocessor.py) |
+| NO | not degrees | **ALL** | **U cant build the graph with neither distances or supported coordinates!** [**solution**](./docs/graph.md#swap-distance-method)
 
 
 # Documentation
