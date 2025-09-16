@@ -39,22 +39,22 @@ Terminology:
 
 > Hub Type: hub types are the user defined names for their hubs. e.g. when having data for flights you have `airports`, thus you may want to define the hubs for the airports as type `airport`. (Hub Types can be anything you want to name them) 
 
-- maxDistance: float = The maximum distance a driving edge is allowed to span
-- transportModes: dict[str, str] = a dictionary that assigns Hub Types to their mode of travel. E.g. 
+- ``maxDistance``: float = The maximum distance a driving edge is allowed to span
+- ``transportModes``: dict[str, str] = a dictionary that assigns Hub Types to their mode of travel. E.g. 
 ```python
 transportModes = {
     'airport': 'fly',# here hub type airport is assigned its primary mode of travel as fly
 }
 ```
-- dataPaths: dict[str, str] = a dictionary that stores the paths to datasets realtive to their Hub Types. E.g.:
+- ``dataPaths``: dict[str, str] = a dictionary that stores the paths to datasets realtive to their Hub Types. E.g.:
 ```python
 dataPaths = {
     # hub type: path to dataset
     'airport': '~/MUltiModalRouter/data/AirportDataset.parquet'
 }
 ```
-- compressed: bool = wheter to save this graph in compressed files or not (NOTE: this is not used at the moment so just skip)
-- extraMetricsKeys: list[str] = a list of metrics the graph will search for in the datasets when building edges (NOTE: default metrics must still be present)
+- ``compressed``: bool = wheter to save this graph in compressed files or not (NOTE: this is not used at the moment so just skip)
+- ``extraMetricsKeys``: list[str] = a list of metrics the graph will search for in the datasets when building edges (NOTE: default metrics must still be present)
 Example:
 ```python
 # given at least one dataset with the col 'time'
@@ -63,7 +63,7 @@ extraMetricsKeys = ['time']
 ```
 When the graph finds this key in a dataset it will then add this metric (here `time`) to all edges that come from hubs stored inside this dataset
 
-- drivingEnabled: bool = whether the graph should connect all possible hubs that have $distance(a,b) \leq maxDistance$ (default=True)
+- ``drivingEnabled``: bool = whether the graph should connect all possible hubs that have $distance(a,b) \leq maxDistance$ (default=True)
 
 #### example
 
