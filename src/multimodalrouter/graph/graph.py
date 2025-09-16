@@ -140,7 +140,7 @@ class RouteGraph:
         return None
     
 
-    def save(self, filepath: str = os.path.join(os.getcwd(), "..", "..", "..", "data"), saveMode: str = None, compressed: bool = False):
+    def save(self, filepath: str = os.path.join(os.getcwd(), "..", "..", "..", "data"), compressed: bool = False):
         """
         Save the RouteGraph to a file.
 
@@ -154,9 +154,7 @@ class RouteGraph:
             - Uncompressed: <filepath>.dill
         """
         with self._lock:
-            # unused
-            if saveMode is not None:
-                self.saveMode = saveMode
+
             # ensure correct compression type is set for loading the graph
             self.compressed = compressed
             # save the graph
