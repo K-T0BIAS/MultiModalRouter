@@ -40,14 +40,22 @@ class RouteGraph:
         self.maxDrivingDistance = maxDistance
 
         self._lock = Lock()
-
+    
     def __getstate__(self):
         state = self.__dict__.copy()
+        
+        # remove attributes that break pickle
+        if "_lock" in state:
+            del state["_lock"]
+        
         return state
+
     
     def __setstate__(self, state):
-        # update the state dict from another state
         self.__dict__.update(state)
+        # set the lock for thread safety
+        from threading import Lock
+        self._lock = Lock()
 
     # =========== public helpers ==========
 
