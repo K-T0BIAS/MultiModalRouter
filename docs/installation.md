@@ -9,10 +9,10 @@ Depending on your choices you will need to install the library with torch. To se
 
 | data has distances | use driving edges | installation mode                   |
 |--------------------|-------------------|-------------------------------------|
-|       YES          |        YES        |`pip install multimodalrouter[torch]`|
-|       YES          |        NO         |`pip install multimodalrouter[torch]`|
-|       NO           |        YES        |`pip install multimodalrouter[torch]`|
-|       NO           |        NO         |   `pip install multimodalrouter`    |
+|       YES          |        YES        |`pip install .[torch]`|
+|       YES          |        NO         |`pip install .[torch]`|
+|       NO           |        YES        |`pip install .[torch]`|
+|       NO           |        NO         |   `pip install .`    |
 
 ## Step 2
 
