@@ -434,7 +434,23 @@ optimizedMetric: OptimizationMetric
 
 By calling `route.flatPath` you will get the string representation of the route 
 
-#### example 
+#### example output
+
+> NOTE: this is a verbose route from `-1.680000, 29.258334` to `3.490000, 35.840000`, connected through airports with data from [open flights](https://openflights.org/data.php)
+
+```text
+Start: GOM
+        Edge: (transportMode=plain, metrics={'distance': 85.9251874180552})
+-> BKY
+        Edge: (transportMode=drive, metrics={'distance': np.float32(20.288797)})
+-> KME
+        Edge: (transportMode=plain, metrics={'distance': 147.44185301830063})
+-> KGL
+        Edge: (transportMode=plain, metrics={'distance': 757.9567739118678})
+-> NBO
+        Edge: (transportMode=plain, metrics={'distance': 515.1466233682448})
+-> LOK
+```
 
 
 

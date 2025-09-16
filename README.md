@@ -31,7 +31,7 @@ The graph can be build from any data aslong as the required fields are present. 
 
 ## Important considerations for your usecase
 
-Depending on your usecase and datasets some faetures may not be usable (NOTE: routing and building will always work)
+Depending on your usecase and datasets some faetures may not be usable see solutions below
 
 ### potential problems based on use case
 
