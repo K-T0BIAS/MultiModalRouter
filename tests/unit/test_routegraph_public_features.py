@@ -151,4 +151,103 @@ class TestRouteGraphInit(unittest.TestCase):
             else:
                 self.assertTrue('car' in hub.outgoing)
                 self.assertTrue('mv' in hub.outgoing)
-                
+
+    def test_find_shortest_path_valid_route_non_verbose(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'])
+        self.assertIsNotNone(route)
+        path = route.path
+        starts = [p[0] for p in path]
+        modes = [p[1] for p in path]
+        self.assertEqual(starts, ['A', 'B', 'D'])
+        self.assertEqual(modes, ['', 'mv', 'mv'])   
+
+    def test_find_shortest_path_valid_route_verbose(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )             
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'], verbose=True)
+        self.assertIsNotNone(route)
+        path = route.path
+        starts = [p[0] for p in path]
+        modes = [p[1] for p in path]
+        data = [p[2] for p in path]
+        self.assertEqual(starts, ['A', 'B', 'D'])
+        self.assertEqual(modes, ['', 'mv', 'mv'])
+        for d in data:
+            self.assertIsNotNone(d)
+
+    def test_find_shortest_path_invalid_path(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        route = graph.find_shortest_path('D','A', allowed_modes=['mv'])
+        self.assertIsNone(route)
+
+    def test_save_load_compressed(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=True,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        graph.save(self.temp_dir.name, compressed=True)
+
+        loaded = RouteGraph.load(os.path.join(self.temp_dir.name,'graph.zlib'), compressed=True) 
+        self.assertEqual(graph.Graph.keys(), loaded.Graph.keys())
+        self.assertEqual(graph.Graph['H'].keys(), loaded.Graph['H'].keys())
+        for oldHub, loadedHub in zip(graph.Graph['H'].values(), loaded.Graph['H'].values()):
+            self.assertEqual(oldHub.id, loadedHub.id)
+
+            
+    def test_save_load_not_compressed(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        graph.save(self.temp_dir.name, compressed=False)
+
+        loaded = RouteGraph.load(os.path.join(self.temp_dir.name,'graph.dill'), compressed=False)
+        self.assertEqual(graph.Graph.keys(), loaded.Graph.keys())
+        self.assertEqual(graph.Graph['H'].keys(), loaded.Graph['H'].keys())
+        for oldHub, loadedHub in zip(graph.Graph['H'].values(), loaded.Graph['H'].values()):
+            self.assertEqual(oldHub.id, loadedHub.id)
