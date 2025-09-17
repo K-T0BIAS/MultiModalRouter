@@ -50,8 +50,8 @@ def main():
     start_lat, start_lng = args.start
     end_lat, end_lng = args.end
 
-    start_hub = graph.findClosestHub(["airport"], start_lat, start_lng)
-    end_hub = graph.findClosestHub(["airport"], end_lat, end_lng)
+    start_hub = graph.findClosestHub(["airport"], [start_lat, start_lng])
+    end_hub = graph.findClosestHub(["airport"], [end_lat, end_lng])
 
     if start_hub is None or end_hub is None:
         print("One of the airports does not exist in the graph")

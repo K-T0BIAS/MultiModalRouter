@@ -59,14 +59,13 @@ class RouteGraph:
 
     # =========== public helpers ==========
 
-    def findClosestHub(self, allowedHubTypes: list[str], lat: float, lon: float) -> Hub | None:
+    def findClosestHub(self, allowedHubTypes: list[str], coords: list[float]) -> Hub | None:
         """
         Find the closest hub of a given type to a given location.
 
         Args:
             hubType: Type of hub to find
-            lat: Latitude of the location
-            lon: Longitude of the location
+            coords: list[float] = the coordinates of the location
 
         Returns:
             Hub instance if found, None otherwise
@@ -82,7 +81,7 @@ class RouteGraph:
         if not potentialHubs:
             return None
         
-        tempHub = Hub(lat=lat, lng=lon, hubType="temp", id="temp") #create a temp hub for the start point
+        tempHub = Hub(coords = coords, hubType="temp", id="temp")
         distances = self._hubToHubDistances([tempHub], potentialHubs).flatten()  # shape (n,)
         closest_hub = potentialHubs[distances.argmin()]
         return closest_hub
@@ -263,12 +262,12 @@ class RouteGraph:
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
                 if row.source not in added:
-                    hub = Hub(lat=row.source_lat, lng=row.source_lng, id=row.source, hubType=hubType)
+                    hub = Hub(coords = [row.source_lat, row.source_lng], id=row.source, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.source)
 
                 if row.destination not in added:
-                    hub = Hub(lat=row.destination_lat, lng=row.destination_lng, id=row.destination, hubType=hubType)
+                    hub = Hub(coords = [row.destination_lat, row.destination_lng], id=row.destination, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.destination)
 
@@ -301,10 +300,10 @@ class RouteGraph:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         with torch.no_grad():
-            lat1 = torch.deg2rad(torch.tensor([h.lat for h in hub1], device=device))
-            lng1 = torch.deg2rad(torch.tensor([h.lng for h in hub1], device=device))
-            lat2 = torch.deg2rad(torch.tensor([h.lat for h in hub2], device=device)) 
-            lng2 = torch.deg2rad(torch.tensor([h.lng for h in hub2], device=device)) 
+            lat1 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub1], device=device))
+            lng1 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub1], device=device))
+            lat2 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub2], device=device)) 
+            lng2 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub2], device=device)) 
 
             lat1 = lat1.unsqueeze(1)
             lng1 = lng1.unsqueeze(1)

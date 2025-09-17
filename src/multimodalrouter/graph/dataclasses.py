@@ -42,11 +42,10 @@ class EdgeMetadata:
 
 class Hub:
     """Base hub class - using regular class instead of dataclass for __slots__ compatibility"""
-    __slots__ = ['lat', 'lng', 'id', 'outgoing', 'hubType']
+    __slots__ = ['coords', 'id', 'outgoing', 'hubType']
 
-    def __init__(self, lat: float, lng: float, id: str, hubType: str):
-        self.lat = lat
-        self.lng = lng
+    def __init__(self, coords: list[float], id: str, hubType: str):
+        self.coords: list[float] = coords
         self.id = id
         self.hubType = hubType
         self.outgoing = {}

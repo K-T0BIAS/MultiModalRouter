@@ -28,8 +28,8 @@ class TestRouteGraph(unittest.TestCase):
         # Check one hub has valid attributes
         hub = all_hubs[0]
         self.assertIsInstance(hub, Hub)
-        self.assertIsInstance(hub.lat, float)
-        self.assertIsInstance(hub.lng, float)
+        self.assertIsInstance(hub.coords[0], float)
+        self.assertIsInstance(hub.coords[1], float)
 
     def test_edges_exist(self):
         # Check that at least one hub has outgoing connections
