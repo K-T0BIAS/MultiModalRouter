@@ -23,7 +23,12 @@ class RouteGraph:
                  compressed: bool = False, # if true model file will be compressed otherwise normal .dill file
                  extraMetricsKeys: list[str] = [], # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
                  drivingEnabled: bool = True, # if true will connect hubs with driving edges
+                 sourceCoordKeys: list[str] = ["source_lat", "source_lng"], # a list of coordinate names for the source coords in the datasets (name to dataset matching is automatic)
+                 destCoordKeys: list[str] = ["destination_lat", "destination_lng"], # a list of coordinate names for the destination coords in the datasets (name to dataset matching is automatic)
                 ):
+        
+        self.sourceCoordKeys = set(sourceCoordKeys)
+        self.destCoordKeys = set(destCoordKeys)
 
         self.compressed = compressed
         self.extraMetricsKeys = extraMetricsKeys
@@ -230,9 +235,7 @@ class RouteGraph:
         
         return data
     
-    def _generateHubs(self, 
-                      sourceCoordKeys: list[str] = ["source_lat", "source_lng"], 
-                      destinationCoodKeys: list[str] = ['destination_lat', 'destination_lng']):
+    def _generateHubs(self):
         """
         Generate Hub instances and link them with EdgeMetadata.
         Extra columns in the data will be added to EdgeMetadata dynamically.
@@ -242,11 +245,14 @@ class RouteGraph:
             data = self._loadData(hubType)
             added = set()
 
+            thisSourceKeys = self.sourceCoordKeys & set(data.columns)
+            thisDestinationKeys = self.destCoordKeys & set(data.columns)
+
             # get required and extra columns
             required_cols = {
                 "source", "destination",
-                *sourceCoordKeys, 
-                *destinationCoodKeys,
+                *thisSourceKeys, 
+                *thisDestinationKeys,
                 "distance"
             }
 
@@ -264,12 +270,12 @@ class RouteGraph:
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
                 if row.source not in added:
-                    hub = Hub(coords = [getattr(row, k) for k in sourceCoordKeys], id=row.source, hubType=hubType)
+                    hub = Hub(coords = [getattr(row, k) for k in thisSourceKeys], id=row.source, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.source)
 
                 if row.destination not in added:
-                    hub = Hub(coords = [getattr(row, k) for k in destinationCoodKeys], id=row.destination, hubType=hubType)
+                    hub = Hub(coords = [getattr(row, k) for k in thisDestinationKeys], id=row.destination, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.destination)
 
