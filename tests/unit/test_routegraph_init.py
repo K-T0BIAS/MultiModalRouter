@@ -44,5 +44,20 @@ class TestRouteGraphInit(unittest.TestCase):
         graph = RouteGraph(maxDistance=50, transportModes={'airport': 'fly'}, dataPaths={'airport': 'airports.csv'}, compressed=False, extraMetricsKeys=[], drivingEnabled=False)
         mock_lock.assert_called_once()
 
+    def test_init_with_special_keys(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'airport': 'fly'},
+            dataPaths={'airport': 'airports.csv'},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=True,
+            sourceCoordKeys=['a', 'b'],
+            destCoordKeys=['c', 'd']
+        )
+
+        self.assertEqual(graph.sourceCoordKeys, {'a', 'b'})
+        self.assertEqual(graph.destCoordKeys, {'c', 'd'})
+
 if __name__ == '__main__':
     unittest.main()
