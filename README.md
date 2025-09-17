@@ -8,7 +8,7 @@ The Multi Modal Router is a graph-based routing engine that allows you to build 
 
 ## Building Freedom / Unlimited Usecases
 
-The graph can be build from any data aslong as the required fields are present. Whether your data contains real worl places or you are working in a more abstract spaces with special coordinates and distance metrics the graph will behave the same (with minor limitations due to dynamic distance calculation, but not a problem when distances are already precomputed).
+The graph can be build from any data aslong as the required fields are present ([example](./docs/examples/demoData.csv)). Whether your data contains real worl places or you are working in a more abstract spaces with special coordinates and distance metrics the graph will behave the same (with minor limitations due to dynamic distance calculation, but not a problem when distances are already precomputed).
 
 #### Example Usecases
 
@@ -35,7 +35,7 @@ The graph can be build from any data aslong as the required fields are present. 
 
 ## Important considerations for your usecase
 
-Depending on your usecase and datasets some faetures may not be usable see solutions below
+Depending on your usecase and datasets some features may not be usable see solutions below
 
 ### potential problems based on use case
 
@@ -47,6 +47,8 @@ Depending on your usecase and datasets some faetures may not be usable see solut
 |      YES|not degrees| runtime distance calculations| set [drivingEnabled = False](./docs/graph.md#args) or do [this](./docs/graph.md#swap-distance-method)|
 | NO | degrees | None | distances must be calculated when [preprocessing](./src/multimodalrouter/utils/preprocessor.py) |
 | NO | not degrees | **ALL** | **U cant build the graph with neither distances or supported coordinates!** [**solution**](./docs/graph.md#swap-distance-method)
+
+[**example dataframe with the required fields**](./docs/examples/demoData.csv)
 
 
 # Documentation
