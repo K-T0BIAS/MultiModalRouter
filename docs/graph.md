@@ -340,7 +340,7 @@ def addOutgoing(
 
 #### args
 
-- mode: str = the mode of transport along this edge (e.g. `plain`, `car`,...)
+- mode: str = the mode of transport along this edge (e.g. `plane`, `car`,...)
 - dest_id: str = the id of the destination Hub
 - metrics: [EdgeMetadata](#edgemetadata) = the edge object that stores the metrics for this connection
 
@@ -383,11 +383,11 @@ def __init__(
 
 #### example
 
-create data for an edge that is traversed via `plain`, has a `distance` of `100.0` and `cost` of `250.0`
+create data for an edge that is traversed via `plane`, has a `distance` of `100.0` and `cost` of `250.0`
 
 ```python
 edgeData = EdgeMetadata(
-    transportMode = 'plain',
+    transportMode = 'plane',
     **{'distance': 100.0, 'cost': '250.0'}
 )
 ```
@@ -440,15 +440,15 @@ By calling `route.flatPath` you will get the string representation of the route
 
 ```text
 Start: GOM
-        Edge: (transportMode=plain, metrics={'distance': 85.9251874180552})
+        Edge: (transportMode=plane, metrics={'distance': 85.9251874180552})
 -> BKY
         Edge: (transportMode=drive, metrics={'distance': np.float32(20.288797)})
 -> KME
-        Edge: (transportMode=plain, metrics={'distance': 147.44185301830063})
+        Edge: (transportMode=plane, metrics={'distance': 147.44185301830063})
 -> KGL
-        Edge: (transportMode=plain, metrics={'distance': 757.9567739118678})
+        Edge: (transportMode=plane, metrics={'distance': 757.9567739118678})
 -> NBO
-        Edge: (transportMode=plain, metrics={'distance': 515.1466233682448})
+        Edge: (transportMode=plane, metrics={'distance': 515.1466233682448})
 -> LOK
 ```
 

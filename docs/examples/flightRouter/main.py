@@ -6,7 +6,7 @@ def main():
     # initialize the graph
     graph = RouteGraph(
         maxDistance=50,
-        transportModes={"airport": "plain", },
+        transportModes={"airport": "plane", },
         dataPaths={"airport": os.path.join(path, "data", "fullDataset.csv")},
         compressed=False,
     )
@@ -22,7 +22,7 @@ def main():
     route = graph.find_shortest_path(
         start_hub.id, 
         end_hub.id,
-        allowed_modes=["plain","car"],
+        allowed_modes=["plane","car"],
         verbose=True
         )
     # print the route
