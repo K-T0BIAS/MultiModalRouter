@@ -50,6 +50,8 @@ Graph built and saved.
 multimodalrouter-route --start lat1 lng1 --end lat2 lng2 --allowedModes car plane --maxSegments 123 --verbose
 ```
 
+> NOTE: if you have higher dimensional coordinates you can simply add them here aswell
+
 ### agrs
 
 - `--start` = the start coordinates for the route (doesn't have to be exact to the `Hub` it will find the closest hub to the point. Also the coordinates do not have to be in dgrees, but rather fit with the coordinate system of your data. Read more [here](./graph.md#advanced-options))
