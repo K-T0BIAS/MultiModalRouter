@@ -230,7 +230,9 @@ class RouteGraph:
         
         return data
     
-    def _generateHubs(self):
+    def _generateHubs(self, 
+                      sourceCoordKeys: list[str] = ["source_lat", "source_lng"], 
+                      destinationCoodKeys: list[str] = ['destination_lat', 'destination_lng']):
         """
         Generate Hub instances and link them with EdgeMetadata.
         Extra columns in the data will be added to EdgeMetadata dynamically.
@@ -243,8 +245,8 @@ class RouteGraph:
             # get required and extra columns
             required_cols = {
                 "source", "destination",
-                "source_lat", "source_lng",
-                "destination_lat", "destination_lng",
+                *sourceCoordKeys, 
+                *destinationCoodKeys,
                 "distance"
             }
 
@@ -262,12 +264,12 @@ class RouteGraph:
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
                 if row.source not in added:
-                    hub = Hub(coords = [row.source_lat, row.source_lng], id=row.source, hubType=hubType)
+                    hub = Hub(coords = [getattr(row, k) for k in sourceCoordKeys], id=row.source, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.source)
 
                 if row.destination not in added:
-                    hub = Hub(coords = [row.destination_lat, row.destination_lng], id=row.destination, hubType=hubType)
+                    hub = Hub(coords = [getattr(row, k) for k in destinationCoodKeys], id=row.destination, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.destination)
 
