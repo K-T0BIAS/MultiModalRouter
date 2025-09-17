@@ -2,6 +2,10 @@
 
 [graph](#routegraph)
 
+- [advanced options](#advanced-options)
+    - [custom distance metrics](#swap-distance-method)
+    - [higher dimensional graphs](#higher-dimensional-graphs)
+
 [dataclasses](#dataclasses)
 
 [Hub](#Hub)
@@ -290,7 +294,7 @@ from multimodalrouter import RouteGraph
 import types
 # define your own distance metric (NOTE the arguments must be the same as here)
 def myDistancMetric(self, hub1: list[Hub], hub2: list[Hub]):
-    ...
+    ... # here you could for example calculate the euclidean distance
     return distances # np.array or list
 
 # create a normal graph object 
@@ -304,6 +308,57 @@ graph.build()
 #### NOTES
 
 - Naturally you can do the same thing for the preprocessor to calculate the transport mode based distances in the preprocessessing step.
+
+#### higher dimensional graphs
+
+To build graphs from higher dimensional data a few things have to be done differently. As an example I will use the following datasets
+
+| source | destination | sdim1 | sdim2 | sdim3 | ddim1 | ddim2 | ddim3 | distance |
+|--------|-------------|-------|-------|-------|-------|-------|-------|----------|
+| A      | B           | 0     | 0     | 0     | 1     | 2     | 2     | 3        |
+| C      | A           | 2     | 4     | 4     | 0     | 0     | 0     | 6        |
+| B      | C           | 1     | 2     | 2     | 2     | 4     | 4     | 3        |
+
+| source | destination | adim1 | adim2 | adim3 | bdim1 | bdim2 | bdim3 | distance |
+|--------|-------------|-------|-------|-------|-------|-------|-------|----------|
+| a | b | 0 | 0 | 0 | 3 | 4 | 0 | 5 |
+| a | c | 0 | 0 | 0 | 0 | 4 | 0 | 4 |
+| c | b | 0 | 4 | 0 | 3 | 4 | 0 | 3 |
+
+With these tow 3D datasets you can build a graph as follows:
+
+```python
+sourceKeys = ['sdim1', 'sdim2', 'sdim3', 'adim1', 'adim2', 'adim3']
+destinationKexs = ['ddim2', 'ddim2', 'ddim3', 'bdim1', 'bdim2', 'bdim3']
+
+from multimodalrouter import RouteGraph
+
+# create a graph
+
+nDimGraph = RouteGraph(
+    maxDistance = 3,
+    transportModes = {
+        'T1': 'mode1',
+        'T2': 'mode2'
+    },
+    dataPaths = {
+        'T1': path1, # path to the data from 1st table
+        'T2': path2 # path to the data from 2nd table
+    },
+    drivingEnabled = False, # add your own driving func to enable this
+    sourceCoordKeys = sourceKeys, # the keys from the sources
+    destCoordKeys = destinationKeys, # the kexs from the destinations
+)
+```
+
+> Now everything else works as normal but with three coordinates 
+
+#### Notes:
+
+> To enable driving add your own distance function like [this](#swap-distance-method)
+
+> It is theoretically possible to combine hubs from differnt dimensions as long as a distance metric is given or the distance is pre calculated
+
 
 ---
 ---
