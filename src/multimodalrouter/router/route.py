@@ -15,14 +15,14 @@ def main():
     )
     parser.add_argument(
         "--start",
-        nargs=2,
+        nargs="+",
         type=float,
         required=True,
         help="Start coordinates"
     )
     parser.add_argument(
         "--end",
-        nargs=2,
+        nargs="+",
         type=float,
         required=True,
         help="End coordinates"
