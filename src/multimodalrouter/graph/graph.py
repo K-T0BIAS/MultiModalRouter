@@ -30,6 +30,7 @@ class RouteGraph:
         self.drivingEnabled = drivingEnabled
 
         self.TransportModes = transportModes
+        # hubtype -> {hubid -> Hub}
         self.Graph: dict[str, dict[str, Hub]] = {}
 
         # save the paths to the data in the state dict
