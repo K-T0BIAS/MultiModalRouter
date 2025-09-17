@@ -30,6 +30,8 @@ def __init__(
     compressed: bool = False,
     extraMetricsKeys: list[str] = [],
     drivingEnabled: bool = True,
+    sourceCoordKeys: list[str] = ["source_lat", "source_lng"],
+    destCoordKeys: list[str] = ["destination_lat", "destination_lng"],
 ):
 ```
 
@@ -64,6 +66,10 @@ extraMetricsKeys = ['time']
 When the graph finds this key in a dataset it will then add this metric (here `time`) to all edges that come from hubs stored inside this dataset
 
 - ``drivingEnabled``: bool = whether the graph should connect all possible hubs that have $distance(a,b) \leq maxDistance$ (default=True)
+- `sourecCoordKeys`: list[str] = a list of keys from your data that contains the column names from your source coordinates. (NOTE: if you have more than one dataset you can just put all source keys into this list as long as the same keys arent for any other metric somewhere else)
+- `destCoordKeys`: list[str] = a list of keys from your data that contains the column names of the destination coordinates. (same conditions as for source apply)
+
+> NOTE: the source and dest coord keys are matched to the correct datasets automatically you can just bundle them all together in one list
 
 #### example
 
@@ -198,8 +204,7 @@ Since searching by hub id is not always possible the graph has a helper that fin
 def findClosestHub(
     self, 
     allowedHubTypes: list[str], 
-    lat: float, 
-    lon: float
+    coords: list[float],
 ) -> Hub | None:
 ```
 
@@ -209,10 +214,9 @@ def findClosestHub(
 - allowedHubTypes: list[str] = a list that defines which hubs should be searched (e.g. ['airport','trainstation'])
 **NOTE:** if you set this to `None` all hubs will be included in 
 the search
-- lat: float = the latitude of your search point (not necessarily the latitude of a hub)
-- lon: float = the longitude of your search point
+- coords: list[float] = the coordinates of the hub. (not limited to 2 dimensions)
 
-> NOTE: the lat and lon must not necessarily be in degrees or any other meaningfull metric aslong as your data provides distances and you turn of enableDrive when building the graph
+> NOTE: the coords must not necessarily be in degrees or any other meaningfull metric aslong as your data provides distances and you turn of enableDrive when building the graph or you do [this](./graph.md#advanced-options)
 
 > NOTE: it is entirely possible to setup the graph with custom coordinate systems and distances
 
@@ -314,8 +318,7 @@ Hubs are the nodes of the [RouteGraph](#routegraph) and store all outgoing conne
 ```python
 def __init__(
     self, 
-    lat: float, 
-    lng: float, 
+    coords: list[float], 
     id: str, 
     hubType: str
 ):
@@ -323,8 +326,7 @@ def __init__(
 
 #### fields
 
-- lat: float = the latitude coordinate of the Hub (NOTE: this can be a value in any coordinate system of your coice aslong as the graph was initialized accordingly and your data supports it)
-- lng: float = the longitude of the Hub (NOTE: the same conditions as for the latitude apply here)
+- coords: list[float]: the coordinates of the `Hub`. (NOTE: this can be any ndim coordinate aslong as it fits with the rest)
 - id: str = a string id like iata code UNLOCODE or whatever you want (NOTE: must be unique for the hubType)
 - hubType: str = the type of hub this will be (e.g. `airport`, `trainstation`,...)
 

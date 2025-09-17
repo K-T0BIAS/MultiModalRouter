@@ -49,8 +49,8 @@ def main():
         if s_prev is not None:
             h1 = graph.getHubById(s_prev)
             h2 = graph.getHubById(s)
-            plt.plot([h1.lat, h2.lat],
-                    [h1.lng, h2.lng],
+            plt.plot([h1.coords[0], h2.coords[0]],
+                    [h1.coords[1], h2.coords[1]],
                     "b-")
         s_prev = s
     # display the plot

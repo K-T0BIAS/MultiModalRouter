@@ -48,6 +48,18 @@ def main():
         default=os.path.join(path, "..", "..", "..", "data"),
         help="Directory to save the graph in (default: .)"
     )
+    parser.add_argument(
+        "--sourceKeys",
+        nargs="+",
+        default=["source_lat", "source_lng"],
+        help="Source keys to search the source coordinates for (default: ['source_lat', 'source_lng'])"
+    )
+    parser.add_argument(
+        "--destKeys",
+        nargs="+",
+        default=["destination_lat", "destination_lng"],
+        help="Destination keys to search the destination coordinates for (default: ['destination_lat', 'destination_lng'])"
+    )
 
     args = parser.parse_args()
 
@@ -68,7 +80,9 @@ def main():
         dataPaths=dataPaths,
         compressed=args.compressed,
         extraMetricsKeys=args.extraMetrics,
-        drivingEnabled=args.drivingEnabled  
+        drivingEnabled=args.drivingEnabled, 
+        sourceCoordKeys=args.sourceKeys,
+        destCoordKeys=args.destKeys
     )
 
     graph.build()

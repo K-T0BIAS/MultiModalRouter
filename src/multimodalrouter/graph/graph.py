@@ -23,7 +23,12 @@ class RouteGraph:
                  compressed: bool = False, # if true model file will be compressed otherwise normal .dill file
                  extraMetricsKeys: list[str] = [], # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
                  drivingEnabled: bool = True, # if true will connect hubs with driving edges
+                 sourceCoordKeys: list[str] = ["source_lat", "source_lng"], # a list of coordinate names for the source coords in the datasets (name to dataset matching is automatic)
+                 destCoordKeys: list[str] = ["destination_lat", "destination_lng"], # a list of coordinate names for the destination coords in the datasets (name to dataset matching is automatic)
                 ):
+        
+        self.sourceCoordKeys = set(sourceCoordKeys)
+        self.destCoordKeys = set(destCoordKeys)
 
         self.compressed = compressed
         self.extraMetricsKeys = extraMetricsKeys
@@ -59,14 +64,13 @@ class RouteGraph:
 
     # =========== public helpers ==========
 
-    def findClosestHub(self, allowedHubTypes: list[str], lat: float, lon: float) -> Hub | None:
+    def findClosestHub(self, allowedHubTypes: list[str], coords: list[float]) -> Hub | None:
         """
         Find the closest hub of a given type to a given location.
 
         Args:
             hubType: Type of hub to find
-            lat: Latitude of the location
-            lon: Longitude of the location
+            coords: list[float] = the coordinates of the location
 
         Returns:
             Hub instance if found, None otherwise
@@ -82,7 +86,7 @@ class RouteGraph:
         if not potentialHubs:
             return None
         
-        tempHub = Hub(lat=lat, lng=lon, hubType="temp", id="temp") #create a temp hub for the start point
+        tempHub = Hub(coords = coords, hubType="temp", id="temp")
         distances = self._hubToHubDistances([tempHub], potentialHubs).flatten()  # shape (n,)
         closest_hub = potentialHubs[distances.argmin()]
         return closest_hub
@@ -241,11 +245,14 @@ class RouteGraph:
             data = self._loadData(hubType)
             added = set()
 
+            thisSourceKeys = self.sourceCoordKeys & set(data.columns)
+            thisDestinationKeys = self.destCoordKeys & set(data.columns)
+
             # get required and extra columns
             required_cols = {
                 "source", "destination",
-                "source_lat", "source_lng",
-                "destination_lat", "destination_lng",
+                *thisSourceKeys, 
+                *thisDestinationKeys,
                 "distance"
             }
 
@@ -263,12 +270,12 @@ class RouteGraph:
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
                 if row.source not in added:
-                    hub = Hub(lat=row.source_lat, lng=row.source_lng, id=row.source, hubType=hubType)
+                    hub = Hub(coords = [getattr(row, k) for k in thisSourceKeys], id=row.source, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.source)
 
                 if row.destination not in added:
-                    hub = Hub(lat=row.destination_lat, lng=row.destination_lng, id=row.destination, hubType=hubType)
+                    hub = Hub(coords = [getattr(row, k) for k in thisDestinationKeys], id=row.destination, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.destination)
 
@@ -301,10 +308,10 @@ class RouteGraph:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         with torch.no_grad():
-            lat1 = torch.deg2rad(torch.tensor([h.lat for h in hub1], device=device))
-            lng1 = torch.deg2rad(torch.tensor([h.lng for h in hub1], device=device))
-            lat2 = torch.deg2rad(torch.tensor([h.lat for h in hub2], device=device)) 
-            lng2 = torch.deg2rad(torch.tensor([h.lng for h in hub2], device=device)) 
+            lat1 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub1], device=device))
+            lng1 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub1], device=device))
+            lat2 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub2], device=device)) 
+            lng2 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub2], device=device)) 
 
             lat1 = lat1.unsqueeze(1)
             lng1 = lng1.unsqueeze(1)
