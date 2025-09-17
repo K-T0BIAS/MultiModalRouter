@@ -8,7 +8,7 @@ import tempfile
 import io
 import contextlib
 
-class TestRouteGraphInit(unittest.TestCase):
+class TestRouteGraphPublicFeatures(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -161,7 +161,9 @@ class TestRouteGraphInit(unittest.TestCase):
             extraMetricsKeys=[],
             drivingEnabled=False
         )
-        with contextlib.redirect_stdout(io.StringIO()):
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
         route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'])
@@ -182,7 +184,8 @@ class TestRouteGraphInit(unittest.TestCase):
             drivingEnabled=False
         )             
 
-        with contextlib.redirect_stdout(io.StringIO()):
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
         route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'], verbose=True)
@@ -205,7 +208,9 @@ class TestRouteGraphInit(unittest.TestCase):
             extraMetricsKeys=[],
             drivingEnabled=False
         )
-        with contextlib.redirect_stdout(io.StringIO()):
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
         route = graph.find_shortest_path('D','A', allowed_modes=['mv'])
@@ -220,7 +225,9 @@ class TestRouteGraphInit(unittest.TestCase):
             extraMetricsKeys=[],
             drivingEnabled=False
         )
-        with contextlib.redirect_stdout(io.StringIO()):
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
         graph.save(self.temp_dir.name, compressed=True)
@@ -241,7 +248,9 @@ class TestRouteGraphInit(unittest.TestCase):
             extraMetricsKeys=[],
             drivingEnabled=False
         )
-        with contextlib.redirect_stdout(io.StringIO()):
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
         graph.save(self.temp_dir.name, compressed=False)
