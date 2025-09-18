@@ -53,14 +53,14 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertIsNone(hub)
 
     def test_getHUb_from_non_empty_graph(self):
-        hub = Hub(id=1, hubType='H', lat=1, lng=1)
+        hub = Hub(id=1, hubType='H', coords=[1, 1])
         self.graph.addHub(hub)
 
         retrievedHub = self.graph.getHub('H', 1)
         self.assertEqual(retrievedHub, hub)
     
     def test_addHub_with_no_duplicates(self):
-        hub = Hub(id=1, hubType='H', lat=1, lng=1)
+        hub = Hub(id=1, hubType='H', coords=[1, 1])
 
         self.graph.addHub(hub)
         # check that the lock was used to access the graph
@@ -71,7 +71,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertEqual(retrievedHub, hub)
         
     def test_addHub_with_duplicates(self):
-        hub = Hub(id=1, hubType='H', lat=1, lng=1)
+        hub = Hub(id=1, hubType='H', coords=[1, 1])
 
         self.graph.addHub(hub)
         self.graph.addHub(hub) # try adding a duplicate
@@ -81,7 +81,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertEqual(len(self.graph.Graph['H']), 1) # check if duplicates exist
     
     def test_getHubById(self):
-        hub = Hub(id=1, hubType='H', lat=1, lng=1)
+        hub = Hub(id=1, hubType='H', coords=[1, 1])
         self.graph.addHub(hub)
 
         retrievedHub = self.graph.getHubById(1)
@@ -118,8 +118,8 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         import numpy as np
 
         def distCalc(self, startHubs: list[Hub], emdHubs: list[Hub]):
-            coords1 = np.array([[h.lat, h.lng] for h in startHubs]) 
-            coords2 = np.array([[h.lat, h.lng] for h in emdHubs]) 
+            coords1 = np.array([h.coords for h in startHubs]) 
+            coords2 = np.array([h.coords for h in emdHubs]) 
 
             diff = coords1[:, np.newaxis, :] - coords2[np.newaxis, :, :]  
             distances = np.linalg.norm(diff, axis=2)  # euclidean distance along last axis

@@ -56,8 +56,8 @@ class TestRouteGraphPrivateMethods(unittest.TestCase):
         self.assertEqual(len(hubs), 4)
 
     def test_addLink(self):
-        hub1 = Hub(1, 1, 'A', 'H')
-        hub2 = Hub(2, 2, 'B', 'H')
+        hub1 = Hub([1, 1], 'A', 'H')
+        hub2 = Hub([2, 2], 'B', 'H')
 
         testGraph = RouteGraph(maxDistance=50, 
                                transportModes={'H': 'mv'}, 
