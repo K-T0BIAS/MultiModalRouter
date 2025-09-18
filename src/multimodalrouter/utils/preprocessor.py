@@ -20,7 +20,7 @@ class preprocessor:
 
     @staticmethod
     def _save(
-        df: pd.DataFrame, 
+        df: pd.DataFrame,
         targetType: str = "parquet"
     ) -> None:
         """
@@ -43,7 +43,6 @@ class preprocessor:
         else:
             # Save the DataFrame to a parquet file
             df.to_parquet(file_path, engine="pyarrow")
-       
 
     @staticmethod
     def preprocess(
@@ -58,7 +57,7 @@ class preprocessor:
         destinationLatKey: str = "destination_lat",
         destinationLngKey: str = "destination_lng",
         targetType: str = "parquet"
-                   ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """
         Preprocess a dataset by renaming columns to the desired format,
         calculating distances and adding the result to the dataframe.
@@ -76,14 +75,14 @@ class preprocessor:
         Returns:
         pd.DataFrame: the preprocessed dataframe
         """
-        
+
         # check if file exists and read it into a df
         _, fType = os.path.splitext(path)
         if fType == ".csv":
             df = pd.read_csv(path)
         elif fType == ".parquet":
             df = pd.read_parquet(path)
-        
+
         # get all column names
         cols = list(df.columns)
 
@@ -102,7 +101,7 @@ class preprocessor:
 
         # rename columns to the desired format
         df.rename(columns={
-            sourceKey: "source", 
+            sourceKey: "source",
             sourceNameKey: "source_name",
             destinationKey: "destination",
             destinationNameKey: "destination_name",
@@ -112,11 +111,21 @@ class preprocessor:
             destinationLngKey: "destination_lng",
             **({distanceKey: "distance"} if distanceKey in cols else {})
         }, inplace=True)
-        
+
         # distance is already present return here
         if distanceKey in cols:
             preprocessor._save(df, targetType=targetType)
-            return df[["source", "source_name", "destination", "destination_name", "distance", "source_lat", "source_lng", "destination_lat", "destination_lng"]]
+            return df[[
+                "source",
+                "source_name",
+                "destination",
+                "destination_name",
+                "distance",
+                "source_lat",
+                "source_lng",
+                "destination_lat",
+                "destination_lng"
+            ]]
 
         # calculate distance
         df["distance"] = preprocessor.haversine(df)
@@ -124,12 +133,22 @@ class preprocessor:
         # save df
         preprocessor._save(df, targetType=targetType)
         # return processed df
-        return df[["source", "source_name","destination", "destination_name", "distance", "source_lat", "source_lng", "destination_lat", "destination_lng"]]
-    
+        return df[[
+            "source",
+            "source_name"
+            "destination",
+            "destination_name",
+            "distance",
+            "source_lat",
+            "source_lng",
+            "destination_lat",
+            "destination_lng"
+        ]]
+
     @staticmethod
     def haversine(df: pd.DataFrame) -> float:
         # use torch for vector calculation
-        import torch 
+        import torch
         # set device
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # compute vectorized haversine
@@ -156,7 +175,3 @@ class preprocessor:
         # Combine the two DataFrames
         combined_df = pd.concat([df1, df2], axis=0)
         return combined_df
-    
-    
-        
-        

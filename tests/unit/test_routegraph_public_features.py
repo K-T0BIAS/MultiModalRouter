@@ -2,11 +2,11 @@ import unittest
 from unittest.mock import patch
 from src.multimodalrouter.graph.graph import RouteGraph
 from src.multimodalrouter.graph.dataclasses import Hub
-from threading import Lock
 import os
 import tempfile
 import io
 import contextlib
+
 
 class TestRouteGraphPublicFeatures(unittest.TestCase):
 
@@ -18,8 +18,8 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         import pandas as pd
         testDf = pd.DataFrame(
             columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
-            data=[('A', 'B', 2, 1, 1, 1, 3), 
-                  ('C', 'D', 1, 2, 1, 1, 4), 
+            data=[('A', 'B', 2, 1, 1, 1, 3),
+                  ('C', 'D', 1, 2, 1, 1, 4),
                   ('B', 'D', 1, 3, 1, 1, 4)]
         )
 
@@ -47,7 +47,6 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         self.mock_lock = mock_lock_class.return_value
 
-
     def test_getHUb_from_empty_graph(self):
         hub = self.graph.getHub('H', 1)
         self.assertIsNone(hub)
@@ -58,7 +57,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         retrievedHub = self.graph.getHub('H', 1)
         self.assertEqual(retrievedHub, hub)
-    
+
     def test_addHub_with_no_duplicates(self):
         hub = Hub(id=1, hubType='H', coords=[1, 1])
 
@@ -69,7 +68,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         retrievedHub = self.graph.getHub('H', 1)
         self.assertEqual(retrievedHub, hub)
-        
+
     def test_addHub_with_duplicates(self):
         hub = Hub(id=1, hubType='H', coords=[1, 1])
 
@@ -79,14 +78,14 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         retrievedHub = self.graph.getHub('H', 1)
         self.assertEqual(retrievedHub, hub) # check if hub is correct
         self.assertEqual(len(self.graph.Graph['H']), 1) # check if duplicates exist
-    
+
     def test_getHubById(self):
         hub = Hub(id=1, hubType='H', coords=[1, 1])
         self.graph.addHub(hub)
 
         retrievedHub = self.graph.getHubById(1)
         self.assertEqual(retrievedHub, hub)
-    
+
     def test_getHubById_not_found(self):
         retrievedHub = self.graph.getHubById(1)
         self.assertIsNone(retrievedHub)
@@ -118,14 +117,14 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         import numpy as np
 
         def distCalc(self, startHubs: list[Hub], emdHubs: list[Hub]):
-            coords1 = np.array([h.coords for h in startHubs]) 
-            coords2 = np.array([h.coords for h in emdHubs]) 
+            coords1 = np.array([h.coords for h in startHubs])
+            coords2 = np.array([h.coords for h in emdHubs])
 
-            diff = coords1[:, np.newaxis, :] - coords2[np.newaxis, :, :]  
+            diff = coords1[:, np.newaxis, :] - coords2[np.newaxis, :, :]
             distances = np.linalg.norm(diff, axis=2)  # euclidean distance along last axis
 
             return distances
-        
+
         graph = RouteGraph(
             maxDistance=50,
             transportModes={'H': 'mv'},
@@ -172,7 +171,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         starts = [p[0] for p in path]
         modes = [p[1] for p in path]
         self.assertEqual(starts, ['A', 'B', 'D'])
-        self.assertEqual(modes, ['', 'mv', 'mv'])   
+        self.assertEqual(modes, ['', 'mv', 'mv'])
 
     def test_find_shortest_path_valid_route_verbose(self):
         graph = RouteGraph(
@@ -182,7 +181,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             compressed=False,
             extraMetricsKeys=[],
             drivingEnabled=False
-        )             
+        )
 
         f = io.StringIO()
         with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
@@ -213,7 +212,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
-        route = graph.find_shortest_path('D','A', allowed_modes=['mv'])
+        route = graph.find_shortest_path('D', 'A', allowed_modes=['mv'])
         self.assertIsNone(route)
 
     def test_save_load_compressed(self):
@@ -232,13 +231,12 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         graph.save(self.temp_dir.name, compressed=True)
 
-        loaded = RouteGraph.load(os.path.join(self.temp_dir.name,'graph.zlib'), compressed=True) 
+        loaded = RouteGraph.load(os.path.join(self.temp_dir.name, 'graph.zlib'), compressed=True)
         self.assertEqual(graph.Graph.keys(), loaded.Graph.keys())
         self.assertEqual(graph.Graph['H'].keys(), loaded.Graph['H'].keys())
         for oldHub, loadedHub in zip(graph.Graph['H'].values(), loaded.Graph['H'].values()):
             self.assertEqual(oldHub.id, loadedHub.id)
 
-            
     def test_save_load_not_compressed(self):
         graph = RouteGraph(
             maxDistance=50,
@@ -255,7 +253,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         graph.save(self.temp_dir.name, compressed=False)
 
-        loaded = RouteGraph.load(os.path.join(self.temp_dir.name,'graph.dill'), compressed=False)
+        loaded = RouteGraph.load(os.path.join(self.temp_dir.name, 'graph.dill'), compressed=False)
         self.assertEqual(graph.Graph.keys(), loaded.Graph.keys())
         self.assertEqual(graph.Graph['H'].keys(), loaded.Graph['H'].keys())
         for oldHub, loadedHub in zip(graph.Graph['H'].values(), loaded.Graph['H'].values()):

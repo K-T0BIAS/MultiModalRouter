@@ -19,7 +19,7 @@ if __name__ == "__main__":
     graph.build()
     # graph.debug_hubs_and_edges()
     start_airport_id = "FAE"
-    end_airport_id = "GOH"    # replace with your target airport code
+    end_airport_id = "GOH"
 
     start_hub = graph.getHub("airport", start_airport_id)
     end_hub = graph.getHub("airport", end_airport_id)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         print(f"No route found from {start_airport_id} to {end_airport_id} using {modes}")
 
     start_id = "SFO"
-    end_id = "OAK" 
+    end_id = "OAK"
 
     modes = ["drive"]
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     route = graph.find_shortest_path(
         start_id=start_id,
         end_id=end_id,
-        allowed_modes=modes, 
+        allowed_modes=modes,
         max_segments=20,
     )
 
@@ -83,12 +83,3 @@ if __name__ == "__main__":
     hub_type = "airport"
     closest_hub = graph.findClosestHub(allowedHubTypes=[hub_type], lat=lat, lon=lng)
     print(f"The closest {hub_type} hub to ({lat}, {lng}) is {closest_hub.id}")
-
-
- 
-
-
-
-
-
-

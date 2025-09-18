@@ -6,8 +6,10 @@
 from dataclasses import dataclass
 from enum import Enum
 
+
 class OptimizationMetric(Enum):
     DISTANCE = "distance"
+
 
 class EdgeMetadata:
     __slots__ = ['transportMode', 'metrics']
@@ -22,12 +24,11 @@ class EdgeMetadata:
             if value is None:
                 raise KeyError(f"Metric '{metric}' not found in EdgeMetadata")
             return value
-        
+
         value = self.metrics.get(metric.value)
         if value is None:
             raise KeyError(f"Metric '{metric.value}' not found in EdgeMetadata")
         return value
-
 
     def copy(self):
         return EdgeMetadata(transportMode=self.transportMode, **self.metrics)
@@ -57,11 +58,11 @@ class Hub:
 
     def getMetrics(self, mode: str, dest_id: str) -> EdgeMetadata:
         return self.outgoing.get(mode, {}).get(dest_id, None)
-    
+
     def getMetric(self, mode: str, dest_id: str, metric: str) -> float:
         connection = self.outgoing.get(mode, {}).get(dest_id)
         return getattr(connection, metric, None) if connection else None
-    
+
     def __hash__(self):
         return hash((self.hubType, self.id))
 
@@ -76,7 +77,7 @@ class Route:
     @property
     def optimizedValue(self):
         return self.totalMetrics.getMetric(self.optimizedMetric)
-    
+
     @property
     def flatPath(self, toStr=True):
         """Flatten the path into a list of hub IDs"""
@@ -97,9 +98,9 @@ class Route:
             else:
                 pathStr += f"{edge[0]} -> {edge[1]}"
         return pathStr
-    
+
+
 @dataclass
 class VerboseRoute(Route):
     """Uses base Route class but adds additional info to hold the edge metadata for every leg"""
     path: list[tuple[str, str, EdgeMetadata]]
-
