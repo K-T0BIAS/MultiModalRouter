@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
-from src.multimodalrouter.graph.graph import RouteGraph
-from src.multimodalrouter.graph.dataclasses import Hub
+from multimodalrouter import RouteGraph, Hub
 import os
 import tempfile
 import io
@@ -32,7 +31,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
     def setUp(self):
         # make init use the mock lock
-        patcher = patch('src.multimodalrouter.graph.graph.Lock')
+        patcher = patch('multimodalrouter.graph.graph.Lock')
         self.addCleanup(patcher.stop)  # ensure patch is removed after test
         mock_lock_class = patcher.start()
 
