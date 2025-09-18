@@ -11,6 +11,7 @@ import os
 import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route
 from threading import Lock
+from collections import deque
 
 
 class RouteGraph:
@@ -398,6 +399,9 @@ class RouteGraph:
             raise ValueError(f"Start hub '{start_id}' not found in graph")
         if end_hub is None:
             raise ValueError(f"End hub '{end_id}' not found in graph")
+        
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
 
         if start_id == end_id:
             # create a route with only the start hub
@@ -487,6 +491,47 @@ class RouteGraph:
                         heapq.heappush(pq, (new_metric_value, next_hub_id, new_path, new_accumulated_metrics))
 
         return None
+    
+    def radial_search(
+            self,
+            hub_id: str,
+            radius: float,
+            optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+            allowed_modes: list[str] = None,
+        ) -> list[float, Hub]:
+
+        center = self.getHubById(hub_id)
+        if center is None:
+            return [center]
+        
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
+        
+        hubsToSearch = deque([center])
+        queued = set([hub_id])
+        reachableHubs: dict[str, tuple[float, Hub]] = {hub_id: (0.0, center)}
+
+        while hubsToSearch:
+            hub = hubsToSearch.popleft() # get the current hub to search
+            currentMetricVal, _ = reachableHubs[hub.id] # get the current metric value
+            for mode in allowed_modes:
+                outgoing = hub.outgoing.get(mode, {}) # find all outgoing connections
+                # dict like {dest_id: EdgeMetadata}
+                for id, edgemetadata in outgoing.items(): # iter over outgoing connections
+                    thisMetricVal = edgemetadata.getMetric(optimization_metric)
+                    if thisMetricVal is None: continue
+                    nextMetricVal = currentMetricVal + thisMetricVal
+                    if nextMetricVal > radius: continue
+                    knownMetric = reachableHubs.get(id, None)
+                    destHub = self.getHubById(id)
+                    # only save smaller metric values
+                    if knownMetric is None or knownMetric[0] > nextMetricVal:
+                        reachableHubs.update({id: (nextMetricVal, destHub)})
+                    if not id in queued:
+                        queued.add(id)
+                        hubsToSearch.append(destHub)
+
+        return [v for v in reachableHubs.values()]
 
     def compare_routes(
         self,

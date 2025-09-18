@@ -49,7 +49,7 @@ class Hub:
         self.coords: list[float] = coords
         self.id = id
         self.hubType = hubType
-        self.outgoing = {}
+        self.outgoing: dict[str, dict[str, EdgeMetadata]] = {}
 
     def addOutgoing(self, mode: str, dest_id: str, metrics: EdgeMetadata):
         if mode not in self.outgoing:
