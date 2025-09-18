@@ -146,6 +146,29 @@ def find_shortest_path(
 
 **returns** : [Route](#route) or None if no route was found
 
+### radial search /finding all hubs inside a radius
+
+> Note: this doesn't search a direct radius but rather a reachablity distance (e.g.: A and B may have a distance $x \leq r$, but the shortest connecting path has distance $y \geq r$)
+
+```python
+def radial_search(
+    self,
+    hub_id: str,
+    radius: float,
+    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    allowed_modes: list[str] = None,
+) -> list[float, Hub]:
+```
+
+#### args
+
+- `hub_id`: str = the id of the center hub the search starts at
+- `radius`: float = the maximum value the search metric is allowed to have from the start
+- `optimization_metric`: str = the target metric you want to use for the distance (default='distance')
+- `allowed_modes`: list[str] = the types of edges that are considered (default= None => all edges are checked)
+
+**returns:** list[tupl[float, Hub]] = a list of all reachable hubs with the 'distance' to the start
+
 ### save
 
 ```python

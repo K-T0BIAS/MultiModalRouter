@@ -493,12 +493,25 @@ class RouteGraph:
         return None
     
     def radial_search(
-            self,
-            hub_id: str,
-            radius: float,
-            optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
-            allowed_modes: list[str] = None,
-        ) -> list[float, Hub]:
+        self,
+        hub_id: str,
+        radius: float,
+        optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+        allowed_modes: list[str] = None,
+    ) -> list[float, Hub]:
+        """
+        Find all hubs within a given radius of a given hub
+        (Note: distance is measured from the connecting paths not direct)
+
+        Args:
+            hub_id: ID of the center hub
+            radius: maximum distance from the center hub
+            optimization_metric: metric to optimize for (e.g. distance, time, cost)
+            allowed_modes: list of allowed transport modes (default: None => all modes)
+
+        Returns:
+            list of tuples containing the metric value and the corresponding hub object
+        """
 
         center = self.getHubById(hub_id)
         if center is None:
