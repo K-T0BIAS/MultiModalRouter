@@ -2,6 +2,8 @@
 
 The Multi Modal Router is a graph-based routing engine that allows you to build and query any hub-based network. It supports multiple transport modes like driving, flying, or shipping, and lets you optimize routes by distance, time, or custom metrics. It can be expanded to any n-dimensional space making it versatile in any coordinate space
 
+> NEWS: v0.1.3 now on pypi ([installation guide](./docs/installation.md))
+
 > NOTE: This project is a work in progress and features might be added and or changed
 
 # In depth Documentation
