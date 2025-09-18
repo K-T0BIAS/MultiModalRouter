@@ -38,6 +38,9 @@ dependencies = [
 
 requires-python = ">=3.11"
 
+urls = [
+  "Git-Repo" = "https://github.com/K-T0BIAS/MultiModalRouter"
+]
 
 [project.optional-dependencies]
 torch = ["torch>=2.8.0"] 
