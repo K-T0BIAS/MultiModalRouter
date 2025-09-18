@@ -157,6 +157,7 @@ def radial_search(
     radius: float,
     optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
     allowed_modes: list[str] = None,
+    custom_filter: Filter = None
 ) -> list[float, Hub]:
 ```
 
@@ -166,6 +167,7 @@ def radial_search(
 - `radius`: float = the maximum value the search metric is allowed to have from the start
 - `optimization_metric`: str = the target metric you want to use for the distance (default='distance')
 - `allowed_modes`: list[str] = the types of edges that are considered (default= None => all edges are checked)
+- `custom_filter`: Filter = a [filter](#filter) object you can pass to add filters for Hubs and edgeMetadata
 
 **returns:** list[ tuple[float, [Hub](#hub)] ] = a list of all reachable hubs with the 'distance' to the start
 
@@ -531,6 +533,9 @@ Start: GOM
         Edge: (transportMode=plane, metrics={'distance': 515.1466233682448})
 -> LOK
 ```
+
+### Filter 
+
 
 
 

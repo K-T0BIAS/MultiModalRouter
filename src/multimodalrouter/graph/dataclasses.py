@@ -5,6 +5,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
+from abc import abstractmethod, ABC
 
 
 class OptimizationMetric(Enum):
@@ -104,3 +105,35 @@ class Route:
 class VerboseRoute(Route):
     """Uses base Route class but adds additional info to hold the edge metadata for every leg"""
     path: list[tuple[str, str, EdgeMetadata]]
+
+
+class Filter(ABC):
+
+    @abstractmethod
+    def filterEdge(self, edge: EdgeMetadata) -> bool:
+        """
+        Return True if you want to keep the edge else False
+
+        Args:
+            edge (EdgeMetadata): Edge to filter
+
+        Returns:
+            bool: True if you want to keep the edge
+        """
+        pass
+
+    @abstractmethod
+    def filterHub(self, hub: Hub) -> bool:
+        """
+        Return True if you want to keep the hub else False
+
+        Args:
+            hub (Hub): Hub to filter
+
+        Returns:
+            bool: True if you want to keep the hub
+        """
+        pass
+
+    def filter(self, start: Hub, end: Hub, edge: EdgeMetadata) -> bool:
+        return self.filterHub(start) and self.filterHub(end) and self.filterEdge(edge)
