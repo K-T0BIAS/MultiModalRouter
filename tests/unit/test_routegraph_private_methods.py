@@ -31,7 +31,7 @@ class TestRouteGraphPrivateMethods(unittest.TestCase):
             dataPaths={'H': cls.temp_file_path},
             compressed=False,
             extraMetricsKeys=[],
-            drivingEnabled=True
+            drivingEnabled=False # set to false to speed up tests and avoid torch
         )
 
         # remove the print output from build
