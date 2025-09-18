@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 
-from collections import defaultdict
 from tqdm import tqdm
 import zlib
 import dill
@@ -16,17 +15,25 @@ from threading import Lock
 
 class RouteGraph:
 
-    def __init__(self, 
-                 maxDistance: float, # sets the max distance to connect hubs with driving edges
-                 transportModes: dict[str, str], # dict like {hubtype -> "airport": "fly", "shippingport": "shipping"}
-                 dataPaths: dict[str, str] = {}, # dict like {hubtype -> "airport": path -> "airports.csv", "shippingport": "shippingports.csv"}
-                 compressed: bool = False, # if true model file will be compressed otherwise normal .dill file
-                 extraMetricsKeys: list[str] = [], # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
-                 drivingEnabled: bool = True, # if true will connect hubs with driving edges
-                 sourceCoordKeys: list[str] = ["source_lat", "source_lng"], # a list of coordinate names for the source coords in the datasets (name to dataset matching is automatic)
-                 destCoordKeys: list[str] = ["destination_lat", "destination_lng"], # a list of coordinate names for the destination coords in the datasets (name to dataset matching is automatic)
-                ):
-        
+    def __init__(
+        self,
+        # sets the max distance to connect hubs with driving edges
+        maxDistance: float,
+        # dict like {hubtype -> "airport": "fly", "shippingport": "shipping"}
+        transportModes: dict[str, str],
+        # dict like {hubtype -> "airport": path -> "airports.csv", "shippingport": "shippingports.csv"}
+        dataPaths: dict[str, str] = {},
+        # if true model file will be compressed otherwise normal .dill file
+        compressed: bool = False,
+        # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
+        extraMetricsKeys: list[str] = [],
+        # if true will connect hubs with driving edges
+        drivingEnabled: bool = True,
+        # a list of coordinate names for the source coords in the datasets (name to dataset matching is automatic)
+        sourceCoordKeys: list[str] = ["source_lat", "source_lng"],
+        # a list of coordinate names for the destination coords in the datasets (name to dataset matching is automatic)
+        destCoordKeys: list[str] = ["destination_lat", "destination_lng"],
+    ):
         self.sourceCoordKeys = set(sourceCoordKeys)
         self.destCoordKeys = set(destCoordKeys)
 
@@ -35,27 +42,27 @@ class RouteGraph:
         self.drivingEnabled = drivingEnabled
 
         self.TransportModes = transportModes
+        # hubtype -> {hubid -> Hub}
         self.Graph: dict[str, dict[str, Hub]] = {}
 
         # save the paths to the data in the state dict
         for key, value in dataPaths.items():
             setattr(self, key + "DataPath", value)
-            self.Graph[key] = {} 
+            self.Graph[key] = {}
 
         self.maxDrivingDistance = maxDistance
 
         self._lock = Lock()
-    
+
     def __getstate__(self):
         state = self.__dict__.copy()
-        
+
         # remove attributes that break pickle
         if "_lock" in state:
             del state["_lock"]
-        
+
         return state
 
-    
     def __setstate__(self, state):
         self.__dict__.update(state)
         # set the lock for thread safety
@@ -85,12 +92,11 @@ class RouteGraph:
 
         if not potentialHubs:
             return None
-        
-        tempHub = Hub(coords = coords, hubType="temp", id="temp")
+
+        tempHub = Hub(coords=coords, hubType="temp", id="temp")
         distances = self._hubToHubDistances([tempHub], potentialHubs).flatten()  # shape (n,)
         closest_hub = potentialHubs[distances.argmin()]
         return closest_hub
-
 
     def addHub(self, hub: Hub):
         """
@@ -103,7 +109,7 @@ class RouteGraph:
             None
         """
         with self._lock:
-            hubType = hub.hubType 
+            hubType = hub.hubType
             # if the hub type doesnt exist in the graph, create it first
             if hubType not in self.Graph:
                 self.Graph[hubType] = {}
@@ -112,7 +118,6 @@ class RouteGraph:
                 return
             # add the hub
             self.Graph[hubType][hub.id] = hub
-
 
     def getHub(self, hubType: str, id: str) -> Hub | None:
         """
@@ -126,7 +131,7 @@ class RouteGraph:
             Hub instance if found, None otherwise
         """
         return self.Graph.get(hubType, {}).get(id)
-    
+
     def getHubById(self, id: str) -> Hub | None:
         """
         Get a hub from the graph by its ID.
@@ -142,9 +147,12 @@ class RouteGraph:
             if hub:
                 return hub
         return None
-    
 
-    def save(self, filepath: str = os.path.join(os.getcwd(), "..", "..", "..", "data"), compressed: bool = False):
+    def save(
+        self,
+        filepath: str = os.path.join(os.getcwd(), "..", "..", "..", "data"),
+        compressed: bool = False
+    ):
         """
         Save the RouteGraph to a file.
 
@@ -192,7 +200,7 @@ class RouteGraph:
             else:
                 graph = dill.loads(file_data)
         return graph
-    
+
     # ============= private helpers =============
 
     def _allHubs(self):
@@ -200,8 +208,13 @@ class RouteGraph:
             yield from self.Graph[hubType].values()
 
     def _addLink(
-        self, hub1: Hub, hub2: Hub, mode: str, distance: float,
-        bidirectional: bool = False, extraData: dict | None = None
+        self,
+        hub1: Hub,
+        hub2: Hub,
+        mode: str,
+        distance: float,
+        bidirectional: bool = False,
+        extraData: dict | None = None
     ):
         """
         Add a connection between two hubs, dynamically storing extra metrics.
@@ -216,10 +229,8 @@ class RouteGraph:
             if bidirectional:
                 hub2.addOutgoing(mode, hub1.id, edge.copy())
 
-
-
     def _loadData(self, targetHubType: str):
-        dataPath =getattr(self, targetHubType + "DataPath")
+        dataPath = getattr(self, targetHubType + "DataPath")
         if dataPath is None:
             raise ValueError(f"Data path for {targetHubType} is not set")
         fType = os.path.splitext(dataPath)[1]
@@ -232,9 +243,9 @@ class RouteGraph:
 
         if data.empty:
             raise ValueError(f"{targetHubType} data is empty load the data first")
-        
+
         return data
-    
+
     def _generateHubs(self):
         """
         Generate Hub instances and link them with EdgeMetadata.
@@ -251,7 +262,7 @@ class RouteGraph:
             # get required and extra columns
             required_cols = {
                 "source", "destination",
-                *thisSourceKeys, 
+                *thisSourceKeys,
                 *thisDestinationKeys,
                 "distance"
             }
@@ -262,20 +273,18 @@ class RouteGraph:
                 if m not in required_cols:
                     try:
                         extra_metric_cols.append(m)
-                    except:
+                    except KeyError:
                         continue
-
-            # extra_metric_cols = [col for col in data.columns if col not in required_cols and col in extraMetricsKeys]
 
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
                 if row.source not in added:
-                    hub = Hub(coords = [getattr(row, k) for k in thisSourceKeys], id=row.source, hubType=hubType)
+                    hub = Hub(coords=[getattr(row, k) for k in thisSourceKeys], id=row.source, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.source)
 
                 if row.destination not in added:
-                    hub = Hub(coords = [getattr(row, k) for k in thisDestinationKeys], id=row.destination, hubType=hubType)
+                    hub = Hub(coords=[getattr(row, k) for k in thisDestinationKeys], id=row.destination, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.destination)
 
@@ -291,11 +300,10 @@ class RouteGraph:
                     extraData=extra_metrics
                 )
 
-
     def _hubToHubDistances(self, hub1: list[Hub], hub2: list[Hub]):
         """
         Compute full pairwise distance matrix between two lists of hubs using Haversine.
-        
+
         Args:
             hub1: list of Hub
             hub2: list of Hub
@@ -310,8 +318,8 @@ class RouteGraph:
         with torch.no_grad():
             lat1 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub1], device=device))
             lng1 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub1], device=device))
-            lat2 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub2], device=device)) 
-            lng2 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub2], device=device)) 
+            lat2 = torch.deg2rad(torch.tensor([h.coords[0] for h in hub2], device=device))
+            lng2 = torch.deg2rad(torch.tensor([h.coords[1] for h in hub2], device=device))
 
             lat1 = lat1.unsqueeze(1)
             lng1 = lng1.unsqueeze(1)
@@ -319,7 +327,7 @@ class RouteGraph:
             lng2 = lng2.unsqueeze(0)
 
             dlat = lat2 - lat1
-            dlng = lng2 - lng1 
+            dlng = lng2 - lng1
 
             a = torch.sin(dlat / 2) ** 2 + torch.cos(lat1) * torch.cos(lat2) * torch.sin(dlng / 2) ** 2
             c = 2 * torch.atan2(torch.sqrt(a), torch.sqrt(1 - a))
@@ -327,8 +335,6 @@ class RouteGraph:
 
         return distances.cpu().numpy()
 
-
-    
     # ============= public key functions =============
 
     def build(self):
@@ -341,14 +347,14 @@ class RouteGraph:
         hubTypes = list(self.Graph.keys())
         for i, hubType1 in enumerate(hubTypes):
             hubs1 = list(self.Graph[hubType1].values())
-            for _, hubType2 in enumerate(hubTypes[i:], start=i): 
+            for _, hubType2 in enumerate(hubTypes[i:], start=i):
                 hubs2 = list(self.Graph[hubType2].values())
                 distances = self._hubToHubDistances(hubs1, hubs2)
 
                 for hi, hub1 in enumerate(hubs1):
                     for hj, hub2 in enumerate(hubs2):
                         if hub1.id == hub2.id:
-                            continue  
+                            continue
 
                         d = distances[hi, hj]
                         if d <= self.maxDrivingDistance:
@@ -361,110 +367,113 @@ class RouteGraph:
                                 # no extra metrics for default drive nodes
                             )
 
-    def find_shortest_path(self, start_id: str, end_id: str, 
-                          allowed_modes: list[str],
-                          optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
-                          max_segments: int = 10,
-                          verbose: bool = False
-                          ) -> Route | None:
+    def find_shortest_path(
+        self,
+        start_id: str,
+        end_id: str,
+        allowed_modes: list[str],
+        optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+        max_segments: int = 10,
+        verbose: bool = False
+    ) -> Route | None:
         """
         Find the optimal path between two hubs using Dijkstra
-        
+
         Args:
             start_id: ID of the starting hub
             end_id: ID of the destination hub
             optimization_metric: Metric to optimize for (distance, time, cost, etc.) (must exist in EdgeMetadata)
             allowed_modes: List of allowed transport modes (default: all modes)
             max_segments: Maximum number of segments allowed in route
-            
+
         Returns:
             Route object with the optimal path, or None if no path exists
         """
-            
+
         # check if start and end hub exist
         start_hub = self.getHubById(start_id)
         end_hub = self.getHubById(end_id)
-        
+
         if start_hub is None:
             raise ValueError(f"Start hub '{start_id}' not found in graph")
         if end_hub is None:
             raise ValueError(f"End hub '{end_id}' not found in graph")
-        
+
         if start_id == end_id:
             # create a route with only the start hub
             # no verbose since no edges are needed
             return Route(
-                path=[(start_id, "")], 
+                path=[(start_id, "")],
                 totalMetrics=EdgeMetadata(),
                 optimizedMetric=optimization_metric,
             )
-        
+
         if verbose:
             # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
             pq = [(0.0, start_id, [(start_id, "", EdgeMetadata())], EdgeMetadata())]
-        else: 
+        else:
             # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
             pq = [(0.0, start_id, [(start_id, "")], EdgeMetadata())]
 
         visited = {} # dict like {hub_id : metric_value}
-        
+
         while pq:
             # get the current path data
             # optim metric,         hub id,       path with modes, accumulated metrics (edgeMetadata object)
             current_metric_value, current_hub_id, path_with_modes, accumulated_metrics = heapq.heappop(pq)
-            
+
             # skip this if a better path exists
             if current_hub_id in visited and visited[current_hub_id] <= current_metric_value:
                 continue
             # mark as visited
             visited[current_hub_id] = current_metric_value
-            
+
             # check if this is the end hub
             if current_hub_id == end_id:
                 if verbose:
                     return Route(
-                        path=path_with_modes, 
+                        path=path_with_modes,
                         totalMetrics=accumulated_metrics,
                         optimizedMetric=optimization_metric,
                     )
-                
+
                 return Route(
-                    path=path_with_modes, 
+                    path=path_with_modes,
                     totalMetrics=accumulated_metrics,
                     optimizedMetric=optimization_metric,
                 )
-            
+
             # skip if too many segments
             if len(path_with_modes) > max_segments:
                 continue
-                
+
             # get the current hub
             current_hub = self.getHubById(current_hub_id)
             if current_hub is None:
                 continue
-            
+
             # test all outgoing connections from the current hub
             for mode in allowed_modes: # iter over the allowed transport modes
                 if mode in current_hub.outgoing: # check if the mode has outgoing connections
                     # iter over all outgoing links with the selected transport type
-                    for next_hub_id, connection_metrics in current_hub.outgoing[mode].items(): 
+                    for next_hub_id, connection_metrics in current_hub.outgoing[mode].items():
                         if connection_metrics is None: # skip if the connection has no metrics
                             continue
-                        
+
                         # get the selected metric alue for this connection
                         connection_value = connection_metrics.getMetric(optimization_metric)
                         new_metric_value = current_metric_value + connection_value
-                        
+
                         # skip if a better hub to get here exists
                         if next_hub_id in visited and visited[next_hub_id] <= new_metric_value:
                             continue
-                        
-                        # create a new edge obj for the combined metrics  |  None bc modes my change between edges (mode is not important here either)
+
+                        # create a new edge obj for the combined metrics  |  None bc modes my change between edges
                         new_accumulated_metrics = EdgeMetadata(transportMode=None, **accumulated_metrics.metrics)
                         # accumulate metrics
                         for metric_name, metric_value in connection_metrics.metrics.items():
                             if isinstance(metric_value, (int, float)):
-                                new_accumulated_metrics.metrics[metric_name] = new_accumulated_metrics.metrics.get(metric_name, 0) + metric_value
+                                new_accumulated_metrics.metrics[metric_name] = new_accumulated_metrics.metrics.get(metric_name, 0) + metric_value # noqa: E501
                             else:
                                 # ignore non-numeric metrics for accumulation (maybe combine strings here)
                                 new_accumulated_metrics.metrics[metric_name] = metric_value
@@ -476,26 +485,29 @@ class RouteGraph:
                             new_path = path_with_modes + [(next_hub_id, mode)]
                         # push to the priority queue for future exploration
                         heapq.heappush(pq, (new_metric_value, next_hub_id, new_path, new_accumulated_metrics))
-        
-        return None
-    
 
-    def compare_routes(self, start_id: str, end_id: str, allowed_modes: list[str],
-                      metrics_to_compare: list[OptimizationMetric] = None
-                      ) -> dict[OptimizationMetric, Route]:
+        return None
+
+    def compare_routes(
+        self,
+        start_id: str,
+        end_id: str,
+        allowed_modes: list[str],
+        metrics_to_compare: list[OptimizationMetric] = None
+    ) -> dict[OptimizationMetric, Route]:
         """
         Find optimal routes for different metrics and compare them
-        
+
         Returns:
             Dictionary mapping each optimization metric to its optimal route
         """
         if metrics_to_compare is None:
             metrics_to_compare = list(OptimizationMetric)
-        
+
         results = {}
         for metric in metrics_to_compare:
             route = self.find_shortest_path(start_id, end_id, optimization_metric=metric, allowed_modes=allowed_modes)
             if route:
                 results[metric] = route
-        
+
         return results

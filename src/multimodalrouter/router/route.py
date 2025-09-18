@@ -7,8 +7,12 @@ from ..graph import RouteGraph
 import argparse
 import os
 
+
 def main():
-    graph = RouteGraph.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "data", "graph.dill"), compressed=False)
+    graph = RouteGraph.load(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "data", "graph.dill"),
+        compressed=False
+    )
 
     parser = argparse.ArgumentParser(
         description="parse the arguments"
@@ -57,13 +61,14 @@ def main():
         print("One of the airports does not exist in the graph")
         return
 
-    route = graph.find_shortest_path(start_id=start_hub.id, 
-                                     end_id=end_hub.id, 
-                                     allowed_modes=args.allowedModes, 
-                                     max_segments=args.maxSegments, 
+    route = graph.find_shortest_path(start_id=start_hub.id,
+                                     end_id=end_hub.id,
+                                     allowed_modes=args.allowedModes,
+                                     max_segments=args.maxSegments,
                                      verbose=args.verbose)
-    
+
     print(route.flatPath if route else "No route found")
+
 
 if __name__ == "__main__":
     main()

@@ -2,9 +2,11 @@
 # Copyright (c) 2025 Tobias Karusseit
 # Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
+
 from ..graph import RouteGraph
 import argparse
 import os
+
 
 def main():
     print("Building graph...")
@@ -70,7 +72,7 @@ def main():
     dataPaths = {}
 
     for i in range(0, len(args.data), 3):
-        key, val1, val2 = args.data[i], args.data[i+1], args.data[i+2]
+        key, val1, val2 = args.data[i], args.data[i + 1], args.data[i + 2]
         transportModes[key] = val1
         dataPaths[key] = val2
 
@@ -80,7 +82,7 @@ def main():
         dataPaths=dataPaths,
         compressed=args.compressed,
         extraMetricsKeys=args.extraMetrics,
-        drivingEnabled=args.drivingEnabled, 
+        drivingEnabled=args.drivingEnabled,
         sourceCoordKeys=args.sourceKeys,
         destCoordKeys=args.destKeys
     )
@@ -89,6 +91,7 @@ def main():
     graph.save(filepath=args.Dir, compressed=args.compressed)
 
     print("Graph built and saved.")
+
 
 if __name__ == "__main__":
     main()
