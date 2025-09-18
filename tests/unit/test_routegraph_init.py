@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from src.multimodalrouter.graph.graph import RouteGraph
+from multimodalrouter import RouteGraph
 from threading import Lock
 
 
@@ -60,7 +60,7 @@ class TestRouteGraphInit(unittest.TestCase):
         self.assertEqual(graph.maxDrivingDistance, 50)
         self.assertIsInstance(graph._lock, type(Lock()))
 
-    @patch('src.multimodalrouter.graph.graph.Lock')
+    @patch('multimodalrouter.graph.graph.Lock')
     def test_init_with_driving_enabled(self, mock_lock):
         _ = RouteGraph(
             maxDistance=50,
