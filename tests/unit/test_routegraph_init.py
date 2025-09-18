@@ -19,7 +19,7 @@ class TestRouteGraphInit(unittest.TestCase):
         self.assertEqual(graph.TransportModes, {})
         self.assertEqual(graph.Graph, {})
         self.assertEqual(graph.maxDrivingDistance, 50)
-        self.assertIsInstance(graph._lock, Lock)
+        self.assertIsInstance(graph._lock, type(Lock()))
 
     def test_init_with_data_paths(self):
         data_paths = {
@@ -40,7 +40,7 @@ class TestRouteGraphInit(unittest.TestCase):
         self.assertEqual(graph.TransportModes, {'airport': 'fly', 'shippingport': 'shipping'})
         self.assertEqual(graph.Graph, {'airport': {}, 'shippingport': {}})
         self.assertEqual(graph.maxDrivingDistance, 50)
-        self.assertIsInstance(graph._lock, Lock)
+        self.assertIsInstance(graph._lock, type(Lock()))
 
     def test_init_with_extra_metrics_keys(self):
         extra_metrics_keys = ['time', 'cost']
@@ -58,7 +58,7 @@ class TestRouteGraphInit(unittest.TestCase):
         self.assertEqual(graph.TransportModes, {'airport': 'fly'})
         self.assertEqual(graph.Graph, {'airport': {}})
         self.assertEqual(graph.maxDrivingDistance, 50)
-        self.assertIsInstance(graph._lock, Lock)
+        self.assertIsInstance(graph._lock, type(Lock()))
 
     @patch('src.multimodalrouter.graph.graph.Lock')
     def test_init_with_driving_enabled(self, mock_lock):
