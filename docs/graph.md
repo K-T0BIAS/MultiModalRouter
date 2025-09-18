@@ -167,7 +167,7 @@ def radial_search(
 - `optimization_metric`: str = the target metric you want to use for the distance (default='distance')
 - `allowed_modes`: list[str] = the types of edges that are considered (default= None => all edges are checked)
 
-**returns:** list[tupl[float, Hub]] = a list of all reachable hubs with the 'distance' to the start
+**returns:** list[ tuple[float, [Hub](#hub)] ] = a list of all reachable hubs with the 'distance' to the start
 
 ### save
 
