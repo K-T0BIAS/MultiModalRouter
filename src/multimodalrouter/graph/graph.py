@@ -372,7 +372,7 @@ class RouteGraph:
         self,
         start_id: str,
         end_id: str,
-        allowed_modes: list[str],
+        allowed_modes: list[str] = None,
         optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
         max_segments: int = 10,
         verbose: bool = False,
