@@ -358,3 +358,59 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertIn('A', reachableIds)
         self.assertIn('G', reachableIds)
 
+    def test_radial_search_with_filter(self):
+
+        class CF(Filter):
+
+            def __init__(self, forbiddenHubs: list[str]):
+                self.forbiddenHubs = forbiddenHubs
+
+            def filterHub(self, hub: Hub) -> bool:
+                return hub.id not in self.forbiddenHubs
+
+            def filterEdge(self, edge: EdgeMetadata) -> bool:
+                return edge.getMetric('distance') < 3
+
+        testDf = pd.DataFrame(
+            columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
+            data=[
+                ('A', 'B', 2, 1, 1, 1, 3),
+                ('A', 'C', 3, 1, 1, 2, 4),
+                ('B', 'D', 1, 1, 3, 1, 4),
+                ('B', 'E', 4, 1, 3, 2, 6),
+                ('C', 'D', 2, 2, 4, 1, 4),
+                ('C', 'F', 5, 2, 4, 3, 7),
+                ('D', 'G', 1, 1, 4, 2, 5),
+                ('E', 'G', 2, 2, 6, 2, 5),
+                ('F', 'H', 3, 3, 7, 3, 9),
+                ('G', 'H', 2, 2, 5, 3, 9),
+                ('H', 'I', 1, 3, 9, 4, 10),
+                ('E', 'I', 5, 2, 6, 4, 10),
+            ]
+        )
+
+        temp_path = os.path.join(self.temp_dir.name, 'temp.csv')
+        testDf.to_csv(temp_path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': temp_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+            graph.build()
+
+        # radial search that excludes hub 'D' and edges where distance > 3
+        reachable = graph.radial_search('A', 5, custom_filter=CF(['D']))
+        self.assertEqual(len(reachable), 2)
+        for dist, _ in reachable:
+            self.assertLessEqual(dist, 5)
+        
+        reachableIds = [hub.id for _, hub in reachable]
+        self.assertIn('B', reachableIds)
+        self.assertIn('A', reachableIds)
