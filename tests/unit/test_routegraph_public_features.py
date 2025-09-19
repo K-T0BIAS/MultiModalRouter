@@ -7,6 +7,7 @@ import io
 import contextlib
 import pandas as pd
 
+
 class TestRouteGraphPublicFeatures(unittest.TestCase):
 
     @classmethod
@@ -234,7 +235,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         temp_path = os.path.join(self.temp_dir.name, 'temp.csv')
         testDf.to_csv(temp_path, index=False)
-        
+
         class CF(Filter):
 
             def __init__(self, forbiddenHubs: list[str]):
@@ -350,7 +351,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertEqual(len(reachable), 5)
         for dist, _ in reachable:
             self.assertLessEqual(dist, 5)
-        
+
         reachableIds = [hub.id for _, hub in reachable]
         self.assertIn('B', reachableIds)
         self.assertIn('C', reachableIds)
@@ -410,7 +411,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertEqual(len(reachable), 2)
         for dist, _ in reachable:
             self.assertLessEqual(dist, 5)
-        
+
         reachableIds = [hub.id for _, hub in reachable]
         self.assertIn('B', reachableIds)
         self.assertIn('A', reachableIds)
