@@ -9,8 +9,9 @@ import dill
 import heapq
 import os
 import pandas as pd
-from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route
+from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter
 from threading import Lock
+from collections import deque
 
 
 class RouteGraph:
@@ -371,10 +372,11 @@ class RouteGraph:
         self,
         start_id: str,
         end_id: str,
-        allowed_modes: list[str],
+        allowed_modes: list[str] = None,
         optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
         max_segments: int = 10,
-        verbose: bool = False
+        verbose: bool = False,
+        custom_filter: Filter = None,
     ) -> Route | None:
         """
         Find the optimal path between two hubs using Dijkstra
@@ -398,6 +400,9 @@ class RouteGraph:
             raise ValueError(f"Start hub '{start_id}' not found in graph")
         if end_hub is None:
             raise ValueError(f"End hub '{end_id}' not found in graph")
+
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
 
         if start_id == end_id:
             # create a route with only the start hub
@@ -460,6 +465,15 @@ class RouteGraph:
                         if connection_metrics is None: # skip if the connection has no metrics
                             continue
 
+                        try:
+                            next_hub = self.getHubById(next_hub_id)
+                        except KeyError:
+                            raise ValueError(
+                                f"Hub with ID '{next_hub_id}' not found in graph! But it is connected to hub '{current_hub_id}' via mode '{mode}'." # noqa: E501
+                            )
+                        if custom_filter is not None and not custom_filter.filter(current_hub, next_hub, connection_metrics):
+                            continue
+
                         # get the selected metric alue for this connection
                         connection_value = connection_metrics.getMetric(optimization_metric)
                         new_metric_value = current_metric_value + connection_value
@@ -487,6 +501,65 @@ class RouteGraph:
                         heapq.heappush(pq, (new_metric_value, next_hub_id, new_path, new_accumulated_metrics))
 
         return None
+
+    def radial_search(
+        self,
+        hub_id: str,
+        radius: float,
+        optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+        allowed_modes: list[str] = None,
+        custom_filter: Filter = None,
+    ) -> list[float, Hub]:
+        """
+        Find all hubs within a given radius of a given hub
+        (Note: distance is measured from the connecting paths not direct)
+
+        Args:
+            hub_id: ID of the center hub
+            radius: maximum distance from the center hub
+            optimization_metric: metric to optimize for (e.g. distance, time, cost)
+            allowed_modes: list of allowed transport modes (default: None => all modes)
+
+        Returns:
+            list of tuples containing the metric value and the corresponding hub object
+        """
+
+        center = self.getHubById(hub_id)
+        if center is None:
+            return [center]
+
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
+
+        hubsToSearch = deque([center])
+        queued = set([hub_id])
+        reachableHubs: dict[str, tuple[float, Hub]] = {hub_id: (0.0, center)}
+
+        while hubsToSearch:
+            hub = hubsToSearch.popleft() # get the current hub to search
+            currentMetricVal, _ = reachableHubs[hub.id] # get the current metric value
+            for mode in allowed_modes:
+                outgoing = hub.outgoing.get(mode, {}) # find all outgoing connections
+                # dict like {dest_id: EdgeMetadata}
+                for id, edgemetadata in outgoing.items(): # iter over outgoing connections
+                    thisMetricVal = edgemetadata.getMetric(optimization_metric)
+                    if thisMetricVal is None:
+                        continue
+                    nextMetricVal = currentMetricVal + thisMetricVal
+                    if nextMetricVal > radius:
+                        continue
+                    knownMetric = reachableHubs.get(id, None)
+                    destHub = self.getHubById(id)
+                    if custom_filter is not None and not custom_filter.filter(hub, destHub, edgemetadata):
+                        continue
+                    # only save smaller metric values
+                    if knownMetric is None or knownMetric[0] > nextMetricVal:
+                        reachableHubs.update({id: (nextMetricVal, destHub)})
+                    if id not in queued:
+                        queued.add(id)
+                        hubsToSearch.append(destHub)
+
+        return [v for v in reachableHubs.values()]
 
     def compare_routes(
         self,

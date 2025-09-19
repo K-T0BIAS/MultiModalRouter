@@ -146,6 +146,31 @@ def find_shortest_path(
 
 **returns** : [Route](#route) or None if no route was found
 
+### radial search /finding all hubs inside a radius
+
+> Note: this doesn't search a direct radius but rather a reachablity distance (e.g.: A and B may have a distance $x \leq r$, but the shortest connecting path has distance $y \geq r$)
+
+```python
+def radial_search(
+    self,
+    hub_id: str,
+    radius: float,
+    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    allowed_modes: list[str] = None,
+    custom_filter: Filter = None
+) -> list[float, Hub]:
+```
+
+#### args
+
+- `hub_id`: str = the id of the center hub the search starts at
+- `radius`: float = the maximum value the search metric is allowed to have from the start
+- `optimization_metric`: str = the target metric you want to use for the distance (default='distance')
+- `allowed_modes`: list[str] = the types of edges that are considered (default= None => all edges are checked)
+- `custom_filter`: Filter = a [filter](#filter) object you can pass to add filters for Hubs and edgeMetadata
+
+**returns:** list[ tuple[float, [Hub](#hub)] ] = a list of all reachable hubs with the 'distance' to the start
+
 ### save
 
 ```python
@@ -359,7 +384,51 @@ nDimGraph = RouteGraph(
 
 > It is theoretically possible to combine hubs from differnt dimensions as long as a distance metric is given or the distance is pre calculated
 
+#### custom filters in searches
 
+To add custom rulesets to searches like [`find_shortest_path`](#routing--finding-the-shortest-path-form-a-to-b) you can add your own [`Filter`](#filter) objects
+
+#### example
+
+Imagine one of your datasets has the following keys
+
+```csv
+source, destination, distance, cost, sx, sy, dx, dy, namex, namey
+```
+
+You have now build your graph with the extra keys: `cost`, `namex`,`namey`, and you want to start a shortest path search that excludes edges where `cost` > `C` and the where the destination `namey` = `N`. Additionally you want to exclude a list of `hub Ids` = `I`
+
+**create Filter:**
+
+```python
+from multimodalrouter import Filter
+
+class CustomFilter(Filter):
+
+    def __init__(self, C: float, N: str, I: list[str]):
+        self.C = C
+        self.N = N
+        self.I = I
+
+    def filterHub(self, hub: Hub):
+        return hub.id not in self.I
+
+    def filterEdge(self, edge: EdgeMetadata):
+        return (edge.getMetric('cost') < self.C 
+                and egde-getMetric('namey') != self.N
+               )
+```
+
+**use filter**
+
+```python
+# graph creation code here
+
+route = graph.find_shortest_path(
+    **kwargs,
+    custom_filter=CustomFilter(c, n, i) # your filter instance
+)
+```
 ---
 ---
 ---
@@ -508,6 +577,45 @@ Start: GOM
         Edge: (transportMode=plane, metrics={'distance': 515.1466233682448})
 -> LOK
 ```
+
+### Filter 
+
+The `Filter` class is an abstract class you can implement to add custom filter to you searches
+
+#### example
+
+```python
+class ExampleFilter(Filter):
+
+    def __init__(
+        self, 
+        forbiddenHubs: list[str], 
+        filterVal: str | float
+    ):
+        self.forbiddenHubs = forbiddenHubs
+        self.filterVal = filterVal
+
+    def filterHub(self, hub: Hub) -> bool:
+        return hub.id not in self.forbiddenHubs
+
+    def filterEdge(self, edge: EdgeMetadata) -> bool:
+        return edge.getMetric('distance') < 3 and edge.getMetric('yourCustomMetric') != self.filterVal
+```
+
+This `ExampleFilter` will remove all hubs with Ids in the forbidden hubs list and ignore all edges where: $distance > 3 \lor customMetric = filterVal $
+
+To make your own `Filter` just implement the ``__init__``, `filterHUb` & `filterEdge` functions and pass an object to the search (custom_filter = your flter object)
+
+> Tipp: if you want to only add a filter for either Hubs or Edges set the function that shouldn't filter to return `True`
+
+**example**
+```python
+def filterHub(self, hub: Hub) -> bool:
+    return True
+```
+
+will let any hub pass through the filter
+
 
 
 
