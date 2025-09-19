@@ -400,7 +400,7 @@ class RouteGraph:
             raise ValueError(f"Start hub '{start_id}' not found in graph")
         if end_hub is None:
             raise ValueError(f"End hub '{end_id}' not found in graph")
-        
+
         if allowed_modes is None:
             allowed_modes = list(self.TransportModes.values())
 
@@ -469,7 +469,7 @@ class RouteGraph:
                             next_hub = self.getHubById(next_hub_id)
                         except KeyError:
                             raise ValueError(
-                                f"Hub with ID '{next_hub_id}' not found in graph! But it is connected to hub '{current_hub_id}' via mode '{mode}'."
+                                f"Hub with ID '{next_hub_id}' not found in graph! But it is connected to hub '{current_hub_id}' via mode '{mode}'." # noqa: E501
                             )
                         if custom_filter is not None and not custom_filter.filter(current_hub, next_hub, connection_metrics):
                             continue
@@ -527,10 +527,10 @@ class RouteGraph:
         center = self.getHubById(hub_id)
         if center is None:
             return [center]
-        
+
         if allowed_modes is None:
             allowed_modes = list(self.TransportModes.values())
-        
+
         hubsToSearch = deque([center])
         queued = set([hub_id])
         reachableHubs: dict[str, tuple[float, Hub]] = {hub_id: (0.0, center)}
@@ -543,9 +543,11 @@ class RouteGraph:
                 # dict like {dest_id: EdgeMetadata}
                 for id, edgemetadata in outgoing.items(): # iter over outgoing connections
                     thisMetricVal = edgemetadata.getMetric(optimization_metric)
-                    if thisMetricVal is None: continue
+                    if thisMetricVal is None:
+                        continue
                     nextMetricVal = currentMetricVal + thisMetricVal
-                    if nextMetricVal > radius: continue
+                    if nextMetricVal > radius:
+                        continue
                     knownMetric = reachableHubs.get(id, None)
                     destHub = self.getHubById(id)
                     if custom_filter is not None and not custom_filter.filter(hub, destHub, edgemetadata):
@@ -553,7 +555,7 @@ class RouteGraph:
                     # only save smaller metric values
                     if knownMetric is None or knownMetric[0] > nextMetricVal:
                         reachableHubs.update({id: (nextMetricVal, destHub)})
-                    if not id in queued:
+                    if id not in queued:
                         queued.add(id)
                         hubsToSearch.append(destHub)
 
