@@ -48,7 +48,7 @@ The graph can be build from any data aslong as the required fields are present (
 
 ## graph visualizations
 
-Use the build-in visualization tool to plot any `2D` or `3D` Graph.
+Use the build-in [visualization](./docs/visualization.md) tool to plot any `2D` or `3D` Graph.
 
 ![example plot of flight paths](./docs/FlightPathPlot.png)
 
