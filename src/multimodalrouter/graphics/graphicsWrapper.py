@@ -295,8 +295,13 @@ class GraphDisplay():
             import math
             curves_all = []
 
-            for startP, endP in zip(start, end):
+            def multiply_vec(vec, factor):
+                return [factor * x for x in vec]
 
+            def add_vec(*vecs):
+                return [sum(items) for items in zip(*vecs)]
+
+            for startP, endP in zip(start, end):
                 mid = [(s + e) / 2 for s, e in zip(startP, endP)]
                 norm = math.sqrt(sum(c ** 2 for c in mid))
                 mid_proj = [R * c / norm for c in mid]
@@ -304,12 +309,13 @@ class GraphDisplay():
 
                 curve = []
                 for i in range(n):
-                    t = i / (n - 1)
-                    one_minus_t = 1 - t
-                    point = [
-                        (one_minus_t ** 2) * s + 2 * one_minus_t * t * m + (t ** 2) * e
-                        for s, m, e in zip(start, mid_arch, end)
-                    ]
+                    t_i = i / (n - 1)
+                    one_minus_t = 1 - t_i
+                    point = add_vec(
+                        multiply_vec(startP, one_minus_t ** 2),
+                        multiply_vec(mid_arch, 2 * one_minus_t * t_i),
+                        multiply_vec(endP, t_i ** 2)
+                    )
                     curve.append(point)
 
                 curves_all.append(curve)
