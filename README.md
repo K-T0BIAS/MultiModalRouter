@@ -46,6 +46,12 @@ The graph can be build from any data aslong as the required fields are present (
 
 ![example from the maze solver](./docs/solvedMaze1.png)
 
+## graph visualizations
+
+Use the build-in visualization tool to plot any `2D` or `3D` Graph.
+
+![example plot of flight paths](./docs/FlightPathPlot.png)
+
 ## Important considerations for your usecase
 
 Depending on your usecase and datasets some features may not be usable see solutions below
