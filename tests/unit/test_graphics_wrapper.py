@@ -24,6 +24,7 @@ class MockRouteGraph:
                 return hub
         return None
 
+
 class TestGraphDisplay(unittest.TestCase):
 
     def setUp(self):
@@ -43,7 +44,7 @@ class TestGraphDisplay(unittest.TestCase):
     def test_node_transform(self):
         # transform: add 1 to all coordinates
         def nodeTransform(coords):
-            return [[x+1, y+1] for x, y, *rest in coords]
+            return [[x + 1, y + 1] for x, y, *rest in coords]
 
         self.display._toPlotlyFormat(nodeTransform=nodeTransform)
         self.assertEqual(self.display.nodes["cell-0"]["coords"][:2], [1, 1])
@@ -69,14 +70,15 @@ class TestGraphDisplay(unittest.TestCase):
         self.assertAlmostEqual(result[1][2], 6371.0, places=0)
 
     def test_curvedEdges(self):
-        start = [[1,0,0]]
-        end = [[0,1,0]]
+        start = [[1, 0, 0]]
+        end = [[0, 1, 0]]
         curve = GraphDisplay.curvedEdges(start, end, R=1.0, H=0.0, n=5)
         self.assertEqual(len(curve), 1)
         self.assertEqual(len(curve[0]), 5)  # n points
         # first and last points match start/end
         self.assertAlmostEqual(curve[0][0][0], 1.0, places=5)
         self.assertAlmostEqual(curve[0][-1][1], 1.0, places=5)
+
 
 if __name__ == "__main__":
     unittest.main()
