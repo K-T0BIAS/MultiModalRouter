@@ -73,4 +73,6 @@ Depending on your usecase and datasets some features may not be usable see solut
 
 [see here](./LICENSE.md)
 
+[dependencies](./NOTICE.md)
+
 
