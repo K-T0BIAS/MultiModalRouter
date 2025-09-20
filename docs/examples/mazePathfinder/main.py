@@ -18,10 +18,11 @@ def main():
     # init the plot
     plt.figure(figsize=(10,10))
     # draw the maze
+    # draw the maze (grid lines)
     for _, row in mazeDf.iterrows():
-        plt.plot([row.source_lat, row.destination_lat],
-                [row.source_lng, row.destination_lng],
-                "k-")  # black line for edge    
+        plt.plot([row.source_lng, row.destination_lng],   # x = "lng" column
+                [row.source_lat, row.destination_lat],   # y = "lat" column
+                "k-")
 
     # initialize the graph
     graph = RouteGraph(
@@ -49,10 +50,12 @@ def main():
         if s_prev is not None:
             h1 = graph.getHubById(s_prev)
             h2 = graph.getHubById(s)
-            plt.plot([h1.coords[0], h2.coords[0]],
-                    [h1.coords[1], h2.coords[1]],
+            # Swap coords so x=column, y=row
+            plt.plot([h1.coords[1], h2.coords[1]],  # x-axis
+                    [h1.coords[0], h2.coords[0]],  # y-axis
                     "b-")
         s_prev = s
+
     # display the plot
     plt.show()
    
