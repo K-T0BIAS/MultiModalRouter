@@ -50,6 +50,7 @@ class Hub:
         self.coords: list[float] = coords
         self.id = id
         self.hubType = hubType
+        # dict like {mode -> {dest_id -> EdgeMetadata}}
         self.outgoing: dict[str, dict[str, EdgeMetadata]] = {}
 
     def addOutgoing(self, mode: str, dest_id: str, metrics: EdgeMetadata):

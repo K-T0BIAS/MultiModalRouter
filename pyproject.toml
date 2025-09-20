@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "multimodalrouter"
-version = "0.1.4"
+version = "0.1.5"
 description = "A graph-based routing library for dynamic routing."
 readme = "README.md"
 license = { file = "LICENSE.md" }
@@ -46,12 +46,14 @@ Repository = "https://github.com/K-T0BIAS/MultiModalRouter"
 [project.optional-dependencies]
 torch = ["torch>=2.8.0"] 
 dev = [
-    "pytest>=8.0"
+    "pytest>=8.0",
+    "plotly>=6.3.0"
 ]
+plotly = ["plotly>=6.3.0"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["multimodalrouter", "multimodalrouter.graph", "multimodalrouter.router", "multimodalrouter.utils"]
+packages = ["multimodalrouter", "multimodalrouter.graph", "multimodalrouter.router", "multimodalrouter.utils", "multimodalrouter.graphics"]
 
 [project.scripts]
 multiModalRouter-build = "multimodalrouter.router.build:main"

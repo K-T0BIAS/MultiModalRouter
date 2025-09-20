@@ -5,14 +5,16 @@
 import random
 import pandas as pd
 
+
 # simple cell class for the maze
 class Cell:
     def __init__(self, x, y):
-        self.id = f"cell-{x,y}"
+        self.id = f"cell-{x, y}"
         self.x = x
         self.y = y
         self.visited = False
         self.connected = []
+
 
 def main():
     # init a 10x10 maze
@@ -53,7 +55,15 @@ def main():
             cellStack.pop()
 
     # init the dataframe
-    data = pd.DataFrame(columns=["source", "destination", "distance", "source_lat", "source_lng", "destination_lat", "destination_lng"])
+    data = pd.DataFrame(columns=[
+        "source",
+        "destination",
+        "distance",
+        "source_lat",
+        "source_lng",
+        "destination_lat",
+        "destination_lng"
+    ])
     # add the edges to the dataframe
     for cell in cells:
         for neighbor in cell.connected:
@@ -61,4 +71,6 @@ def main():
     # save the dataframe
     data.to_csv("docs/examples/mazePathfinder/data/maze.csv", index=False)
 
-if __name__ == "__main__": main()
+
+if __name__ == "__main__":
+    main()
