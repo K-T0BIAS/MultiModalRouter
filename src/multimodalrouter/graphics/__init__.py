@@ -1,1 +1,1 @@
-from .graphicsWrapper import GraphDisplay
+from .graphicsWrapper import GraphDisplay # noqa: F401

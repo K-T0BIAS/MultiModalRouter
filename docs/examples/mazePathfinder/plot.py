@@ -7,10 +7,12 @@ from multimodalrouter import RouteGraph
 from multimodalrouter.graphics import GraphDisplay
 import os
 
+
 # custom transform to make lat lng to x y (-> lng lat)
 def NodeTransform(coords):
     for coord in coords:
         yield list((coord[0], coord[1]))
+
 
 if __name__ == "__main__":
     path = os.path.dirname(os.path.abspath(__file__))
@@ -28,4 +30,3 @@ if __name__ == "__main__":
     display = GraphDisplay(graph)
     # display the graph (uses the transform to swap lat lng to x y)
     display.display(nodeTransform=NodeTransform)
-
