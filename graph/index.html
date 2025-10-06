@@ -1,0 +1,2242 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mydomain.org/multimodalrouter-docs/graph/">
+      
+      
+        <link rel="prev" href="../installation/">
+      
+      
+        <link rel="next" href="../visualization/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
+    
+    
+      
+        <title>Graph - Multi Modal Router Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2a3383ac.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#routegraph" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Multi Modal Router Documentation" class="md-header__button md-logo" aria-label="Multi Modal Router Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Multi Modal Router Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Graph
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Multi Modal Router Documentation" class="md-nav__button md-logo" aria-label="Multi Modal Router Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Multi Modal Router Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Graph
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Graph
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functionality
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functionality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      initialization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="initialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    <span class="md-ellipsis">
+      build
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="build">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routing-finding-the-shortest-path-form-a-to-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      routing / finding the shortest Path form A to B
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="routing / finding the shortest Path form A to B">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#radial-search-finding-all-hubs-inside-a-radius" class="md-nav__link">
+    <span class="md-ellipsis">
+      radial search /finding all hubs inside a radius
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="radial search /finding all hubs inside a radius">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save" class="md-nav__link">
+    <span class="md-ellipsis">
+      save
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="save">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    <span class="md-ellipsis">
+      load
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="load">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#searching-with-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      searching with coordinates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="searching with coordinates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-hubs-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      getting hubs by id
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="getting hubs by id">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manually-adding-hubs" class="md-nav__link">
+    <span class="md-ellipsis">
+      manually adding Hubs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="---">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#advanced-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      advanced options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="advanced options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#swap-distance-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      swap distance method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      NOTES
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#higher-dimensional-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      higher dimensional graphs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-filters-in-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      custom filters in searches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataclasses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dataclasses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hub
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      adding edges
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-the-edge-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      getting the edge metrics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="---">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#edgemetadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      EdgeMetadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EdgeMetadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-a-specific-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      get a specific metric
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="---">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#route" class="md-nav__link">
+    <span class="md-ellipsis">
+      Route
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Route">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      properties
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      example output
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visualization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Command Line Interface
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Utils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LICENSE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    License
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NOTICE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Notice
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functionality
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functionality">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      initialization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="initialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    <span class="md-ellipsis">
+      build
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="build">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routing-finding-the-shortest-path-form-a-to-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      routing / finding the shortest Path form A to B
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="routing / finding the shortest Path form A to B">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#radial-search-finding-all-hubs-inside-a-radius" class="md-nav__link">
+    <span class="md-ellipsis">
+      radial search /finding all hubs inside a radius
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="radial search /finding all hubs inside a radius">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save" class="md-nav__link">
+    <span class="md-ellipsis">
+      save
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="save">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    <span class="md-ellipsis">
+      load
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="load">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#searching-with-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      searching with coordinates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="searching with coordinates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-hubs-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      getting hubs by id
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="getting hubs by id">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manually-adding-hubs" class="md-nav__link">
+    <span class="md-ellipsis">
+      manually adding Hubs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="---">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#advanced-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      advanced options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="advanced options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#swap-distance-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      swap distance method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      NOTES
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#higher-dimensional-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      higher dimensional graphs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-filters-in-searches" class="md-nav__link">
+    <span class="md-ellipsis">
+      custom filters in searches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataclasses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dataclasses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hub
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      adding edges
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-the-edge-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      getting the edge metrics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="---">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#edgemetadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      EdgeMetadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EdgeMetadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#args_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-a-specific-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      get a specific metric
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      args
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ---
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="---">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#route" class="md-nav__link">
+    <span class="md-ellipsis">
+      Route
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Route">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      properties
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      example output
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<p><a href="../">HOME</a></p>
+<p><a href="#routegraph">graph</a></p>
+<ul>
+<li><a href="#advanced-options">advanced options</a><ul>
+<li><a href="#swap-distance-method">custom distance metrics</a></li>
+<li><a href="#higher-dimensional-graphs">higher dimensional graphs</a></li>
+</ul>
+</li>
+</ul>
+<p><a href="#dataclasses">dataclasses</a></p>
+<p><a href="#Hub">Hub</a></p>
+<p><a href="#edgemetadata">EdgeMetadata</a></p>
+<p><a href="#route">Route</a></p>
+<h1 id="routegraph">RouteGraph</h1>
+<p>The <code>RouteGraph</code> is the central class of the package implemented as a dynamic (cyclic) directed graph. It defines all graph building and routing related functions.</p>
+<h2 id="functionality">Functionality</h2>
+<h3 id="initialization">initialization</h3>
+<p>This creates a new graph with no <code>Hubs</code> or <code>Edges</code>.</p>
+<pre><code class="language-python">def __init__(
+    self, 
+    maxDistance: float,
+    transportModes: dict[str, str],
+    dataPaths: dict[str, str] = {},
+    compressed: bool = False,
+    extraMetricsKeys: list[str] = [],
+    drivingEnabled: bool = True,
+    sourceCoordKeys: list[str] = [&quot;source_lat&quot;, &quot;source_lng&quot;],
+    destCoordKeys: list[str] = [&quot;destination_lat&quot;, &quot;destination_lng&quot;],
+):
+</code></pre>
+<h4 id="args">args</h4>
+<p>Terminology:</p>
+<blockquote>
+<p>Hub Type: hub types are the user defined names for their hubs. e.g. when having data for flights you have <code>airports</code>, thus you may want to define the hubs for the airports as type <code>airport</code>. (Hub Types can be anything you want to name them) </p>
+</blockquote>
+<ul>
+<li><code>maxDistance</code>: float = The maximum distance a driving edge is allowed to span</li>
+<li><code>transportModes</code>: dict[str, str] = a dictionary that assigns Hub Types to their mode of travel. E.g. </li>
+</ul>
+<pre><code class="language-python">transportModes = {
+    'airport': 'fly',# here hub type airport is assigned its primary mode of travel as fly
+}
+</code></pre>
+<ul>
+<li><code>dataPaths</code>: dict[str, str] = a dictionary that stores the paths to datasets realtive to their Hub Types. E.g.:</li>
+</ul>
+<pre><code class="language-python">dataPaths = {
+    # hub type: path to dataset
+    'airport': '~/MUltiModalRouter/data/AirportDataset.parquet'
+}
+</code></pre>
+<ul>
+<li><code>compressed</code>: bool = wheter to save this graph in compressed files or not (NOTE: this is not used at the moment so just skip)</li>
+<li><code>extraMetricsKeys</code>: list[str] = a list of metrics the graph will search for in the datasets when building edges (NOTE: default metrics must still be present)
+Example:</li>
+</ul>
+<pre><code class="language-python"># given at least one dataset with the col 'time'
+
+extraMetricsKeys = ['time']
+</code></pre>
+<p>When the graph finds this key in a dataset it will then add this metric (here <code>time</code>) to all edges that come from hubs stored inside this dataset</p>
+<ul>
+<li><code>drivingEnabled</code>: bool = whether the graph should connect all possible hubs that have <span class="arithmatex"><span class="MathJax_Preview">distance(a,b) \leq maxDistance</span><script type="math/tex">distance(a,b) \leq maxDistance</script></span> (default=True)</li>
+<li><code>sourecCoordKeys</code>: list[str] = a list of keys from your data that contains the column names from your source coordinates. (NOTE: if you have more than one dataset you can just put all source keys into this list as long as the same keys arent for any other metric somewhere else)</li>
+<li><code>destCoordKeys</code>: list[str] = a list of keys from your data that contains the column names of the destination coordinates. (same conditions as for source apply)</li>
+</ul>
+<blockquote>
+<p>NOTE: the source and dest coord keys are matched to the correct datasets automatically you can just bundle them all together in one list</p>
+</blockquote>
+<h4 id="example">example</h4>
+<p>Init a graph with Hubs: <code>airport</code>, <code>trainstation</code></p>
+<pre><code class="language-python">from multimodalrouter import RouteGraph
+
+graph = RouteGraph(
+    maxDistance = 50,
+    transportModes = {
+        'airport': 'plane',
+        'trainstation': 'train'
+    },
+    dataPaths = {
+        'airport': pathToAirportData,
+        'trainstation': pathToTrainData
+    }
+    # time and cost must each be present in at least one dataset
+    extraMetricsKeys = ['time', 'cost'], 
+    # default is True so this is not necessary 
+    drivingEnabled = True, 
+)
+</code></pre>
+<p>The resulting graph will be able to build <code>HUbs</code> for both <code>train stations</code> and <code>airports</code>. It will also use the extra metrics in all edges where the data is present</p>
+<h3 id="build">build</h3>
+<p>After a graph is initialized it doesn't contain any actual nodes or edges yet. To create the nodes and edges the graph has to be build.</p>
+<pre><code class="language-python">def build(self):
+</code></pre>
+<h4 id="example_1">example</h4>
+<p>click <a href="#example">here</a> to see how to init the graph</p>
+<pre><code class="language-python"># with the graph from the previous example
+
+graph.build()
+</code></pre>
+<p>After this finishes the graph is build and ready for routing</p>
+<h3 id="routing-finding-the-shortest-path-form-a-to-b">routing / finding the shortest Path form A to B</h3>
+<pre><code class="language-python">def find_shortest_path(
+    self, 
+    start_id: str, 
+    end_id: str, 
+    allowed_modes: list[str],
+    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    max_segments: int = 10,
+    verbose: bool = False
+    ) -&gt; Route | None:
+</code></pre>
+<h4 id="args_1">args</h4>
+<ul>
+<li>start_id: str = the Hub.id of the starting hub (e.g. the source field for this hub in your data -&gt; for <code>airports</code> likely the iata code) (for coordinate searches see <a href="#searching-with-coordinates">here</a>)</li>
+<li>end_id: str = the Hub.id of the traget Hub</li>
+<li>allowed_modes: list[str] = a list of transport modes that are allowed in the path (all edges with different modes are excluded)(The modes are set during the graph <a href="#args">initailization</a>)</li>
+<li>optimization_metric: str = the metric by which the pathfinder will determine the length of the path (must be numeric and present in all searched edges) (default = <code>distance</code>) (metrics where also set during <a href="#args">initialization</a>)</li>
+<li>max_segments: int = the maximum number of hubs the route is allowed to include (default = 10 to avoid massive searches but should be setvrealtive to the graph size and density)</li>
+<li>verbose: bool = whether you want to store all edges and their data in the route or just the hub names (default=False)</li>
+</ul>
+<p><strong>returns</strong> : <a href="#route">Route</a> or None if no route was found</p>
+<h3 id="radial-search-finding-all-hubs-inside-a-radius">radial search /finding all hubs inside a radius</h3>
+<blockquote>
+<p>Note: this doesn't search a direct radius but rather a reachablity distance (e.g.: A and B may have a distance <span class="arithmatex"><span class="MathJax_Preview">x \leq r</span><script type="math/tex">x \leq r</script></span>, but the shortest connecting path has distance <span class="arithmatex"><span class="MathJax_Preview">y \geq r</span><script type="math/tex">y \geq r</script></span>)</p>
+</blockquote>
+<pre><code class="language-python">def radial_search(
+    self,
+    hub_id: str,
+    radius: float,
+    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    allowed_modes: list[str] = None,
+    custom_filter: Filter = None
+) -&gt; list[float, Hub]:
+</code></pre>
+<h4 id="args_2">args</h4>
+<ul>
+<li><code>hub_id</code>: str = the id of the center hub the search starts at</li>
+<li><code>radius</code>: float = the maximum value the search metric is allowed to have from the start</li>
+<li><code>optimization_metric</code>: str = the target metric you want to use for the distance (default='distance')</li>
+<li><code>allowed_modes</code>: list[str] = the types of edges that are considered (default= None =&gt; all edges are checked)</li>
+<li><code>custom_filter</code>: Filter = a <a href="#filter">filter</a> object you can pass to add filters for Hubs and edgeMetadata</li>
+</ul>
+<p><strong>returns:</strong> list[ tuple[float, <a href="#hub">Hub</a>] ] = a list of all reachable hubs with the 'distance' to the start</p>
+<h3 id="save">save</h3>
+<pre><code class="language-python">def save(
+    self, 
+    filepath: str = os.path.join(os.getcwd(), &quot;..&quot;, &quot;..&quot;, &quot;..&quot;, &quot;data&quot;), 
+    compressed: bool = False):
+</code></pre>
+<p>The <code>save</code> method will create a save file from the last garph state. Depending on the <code>arguments</code> the file will either be stored as <code>.dill</code> or <code>.zlib</code>.
+A save file contains the complete statedict of the RouteGraph instance except attributes that could break the pickling process (e.g. <code>threading.Lock</code>).</p>
+<h4 id="args_3">args</h4>
+<ul>
+<li>filepath: str = the directory that the savefile will be stored in (defaults to <code>MultiModalRouter/data</code>)</li>
+<li>compressed: bool = whether to compress the output into <code>.zlib</code> or store as <code>.dill</code></li>
+</ul>
+<h4 id="example_2">example</h4>
+<p>Saving a graph to a custom dir, in a <code>.dill</code> file</p>
+<pre><code class="language-python">...
+graph.save(filepath=customDir)
+</code></pre>
+<h3 id="load">load</h3>
+<pre><code class="language-python">@staticmethod
+def load(
+    filepath: str, 
+    compressed: bool = False
+) -&gt; &quot;RouteGraph&quot;:
+</code></pre>
+<p>The load method is a static method that allows you to load a graph from its save file into a new graph object.
+The resulting graph object is fully initialized and can be used as is.</p>
+<h4 id="args_4">args</h4>
+<ul>
+<li>filepath: str = the full path to your save file </li>
+<li>compressed: bool = set this to <code>True</code> if your graph was saved to a <code>.zlib</code> compressed file (default=<code>False</code>)</li>
+</ul>
+<h4 id="example_3">example</h4>
+<pre><code class="language-python">from multimodalrouter import RouteGraph
+# load a .dill file from 'pathToMyGraph'
+myGraph = RouteGraph.load(filepath=pathToMyGraph) 
+</code></pre>
+<p>The <code>myGraph</code> object is now fully loaded and can be used to its full extend.</p>
+<h3 id="searching-with-coordinates">searching with coordinates</h3>
+<p>Since searching by hub id is not always possible the graph has a helper that finds a hub closest to a coordinate tuple.</p>
+<pre><code class="language-python">def findClosestHub(
+    self, 
+    allowedHubTypes: list[str], 
+    coords: list[float],
+) -&gt; Hub | None:
+</code></pre>
+<h4 id="args_5">args</h4>
+<ul>
+<li>allowedHubTypes: list[str] = a list that defines which hubs should be searched (e.g. ['airport','trainstation'])
+<strong>NOTE:</strong> if you set this to <code>None</code> all hubs will be included in 
+the search</li>
+<li>coords: list[float] = the coordinates of the hub. (not limited to 2 dimensions)</li>
+</ul>
+<blockquote>
+<p>NOTE: the coords must not necessarily be in degrees or any other meaningfull metric aslong as your data provides distances and you turn of enableDrive when building the graph or you do <a href="./#advanced-options">this</a></p>
+<p>NOTE: it is entirely possible to setup the graph with custom coordinate systems and distances</p>
+</blockquote>
+<h4 id="example_4">example</h4>
+<pre><code class="language-python">coordinates = 100.0, 100.0
+closestHub = graph.findClosestHub(
+    allowedHUbTypes = None, # include all types in search
+    *coordinates, 
+)
+</code></pre>
+<blockquote>
+<p>NOTE: you can now use <code>closestHub.id</code> in the <a href="#routing--finding-the-shortest-path-form-a-to-b">search</a></p>
+</blockquote>
+<h3 id="getting-hubs-by-id">getting hubs by id</h3>
+<p>If you want to inspect a hub and you know its <code>id</code> you can get it from the graph as follows</p>
+<pre><code class="language-python">def getHub(
+    self, 
+    hubType: str, 
+    id: str
+) -&gt; Hub | None:
+</code></pre>
+<p>or </p>
+<pre><code class="language-python">def getHubById(
+    self, 
+    id: str
+) -&gt; Hub | None:
+</code></pre>
+<h4 id="args_6">args</h4>
+<ul>
+<li>hubType: str = the type of the target hub</li>
+<li>id: str = the id of the target hub</li>
+</ul>
+<p><strong>returns:</strong> the Hub or if not found None</p>
+<h3 id="manually-adding-hubs">manually adding Hubs</h3>
+<p>If you want to add a new Hub to a graph without building use this:</p>
+<pre><code class="language-python">def addHub(self, hub: Hub):
+</code></pre>
+<p>This will add your Hub to the garph and if its already present it will fail silently</p>
+<h3 id="args_7">args</h3>
+<ul>
+<li>hub: Hub = the Hub you want to add</li>
+</ul>
+<h2 id="-">---</h2>
+<h3 id="advanced-options">advanced options</h3>
+<h4 id="swap-distance-method">swap distance method</h4>
+<p>When your dataset comes with neither distances nor a coordinate system in degrees you can mount your own distance function. This way you will still be able to build the default driving edges etc.</p>
+<h4 id="example_5">example</h4>
+<pre><code class="language-python">from multimodalrouter import RouteGraph
+import types
+# define your own distance metric (NOTE the arguments must be the same as here)
+def myDistancMetric(self, hub1: list[Hub], hub2: list[Hub]):
+    ... # here you could for example calculate the euclidean distance
+    return distances # np.array or list
+
+# create a normal graph object 
+specialGraph = RouteGraph(**kwargs)
+# swap the distance method
+specialGraph._hubToHubDistances = types.MethodType(myDistanceMetric, specialGraph)
+# continue as you would normally
+graph.build()
+</code></pre>
+<h4 id="notes">NOTES</h4>
+<ul>
+<li>Naturally you can do the same thing for the preprocessor to calculate the transport mode based distances in the preprocessessing step.</li>
+</ul>
+<h4 id="higher-dimensional-graphs">higher dimensional graphs</h4>
+<p>To build graphs from higher dimensional data a few things have to be done differently. As an example I will use the following datasets</p>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>destination</th>
+<th>sdim1</th>
+<th>sdim2</th>
+<th>sdim3</th>
+<th>ddim1</th>
+<th>ddim2</th>
+<th>ddim3</th>
+<th>distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>B</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>C</td>
+<td>A</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+</tr>
+<tr>
+<td>B</td>
+<td>C</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>destination</th>
+<th>adim1</th>
+<th>adim2</th>
+<th>adim3</th>
+<th>bdim1</th>
+<th>bdim2</th>
+<th>bdim3</th>
+<th>distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>b</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr>
+<td>a</td>
+<td>c</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>c</td>
+<td>b</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>3</td>
+<td>4</td>
+<td>0</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>With these tow 3D datasets you can build a graph as follows:</p>
+<pre><code class="language-python">sourceKeys = ['sdim1', 'sdim2', 'sdim3', 'adim1', 'adim2', 'adim3']
+destinationKexs = ['ddim2', 'ddim2', 'ddim3', 'bdim1', 'bdim2', 'bdim3']
+
+from multimodalrouter import RouteGraph
+
+# create a graph
+
+nDimGraph = RouteGraph(
+    maxDistance = 3,
+    transportModes = {
+        'T1': 'mode1',
+        'T2': 'mode2'
+    },
+    dataPaths = {
+        'T1': path1, # path to the data from 1st table
+        'T2': path2 # path to the data from 2nd table
+    },
+    drivingEnabled = False, # add your own driving func to enable this
+    sourceCoordKeys = sourceKeys, # the keys from the sources
+    destCoordKeys = destinationKeys, # the kexs from the destinations
+)
+</code></pre>
+<blockquote>
+<p>Now everything else works as normal but with three coordinates </p>
+</blockquote>
+<h4 id="notes_1">Notes:</h4>
+<blockquote>
+<p>To enable driving add your own distance function like <a href="#swap-distance-method">this</a></p>
+<p>It is theoretically possible to combine hubs from differnt dimensions as long as a distance metric is given or the distance is pre calculated</p>
+</blockquote>
+<h4 id="custom-filters-in-searches">custom filters in searches</h4>
+<p>To add custom rulesets to searches like <a href="#routing--finding-the-shortest-path-form-a-to-b"><code>find_shortest_path</code></a> you can add your own <a href="#filter"><code>Filter</code></a> objects</p>
+<h4 id="example_6">example</h4>
+<p>Imagine one of your datasets has the following keys</p>
+<pre><code class="language-csv">source, destination, distance, cost, sx, sy, dx, dy, namex, namey
+</code></pre>
+<p>You have now build your graph with the extra keys: <code>cost</code>, <code>namex</code>,<code>namey</code>, and you want to start a shortest path search that excludes edges where <code>cost</code> &gt; <code>C</code> and the where the destination <code>namey</code> = <code>N</code>. Additionally you want to exclude a list of <code>hub Ids</code> = <code>I</code></p>
+<p><strong>create Filter:</strong></p>
+<pre><code class="language-python">from multimodalrouter import Filter
+
+class CustomFilter(Filter):
+
+    def __init__(self, C: float, N: str, I: list[str]):
+        self.C = C
+        self.N = N
+        self.I = I
+
+    def filterHub(self, hub: Hub):
+        return hub.id not in self.I
+
+    def filterEdge(self, edge: EdgeMetadata):
+        return (edge.getMetric('cost') &lt; self.C 
+                and egde-getMetric('namey') != self.N
+               )
+</code></pre>
+<p><strong>use filter</strong></p>
+<pre><code class="language-python"># graph creation code here
+
+route = graph.find_shortest_path(
+    **kwargs,
+    custom_filter=CustomFilter(c, n, i) # your filter instance
+)
+</code></pre>
+<h2 id="-_1">---</h2>
+<hr />
+<h2 id="dataclasses">Dataclasses</h2>
+<h3 id="hub">Hub</h3>
+<p>Hubs are the nodes of the <a href="#routegraph">RouteGraph</a> and store all outgoing connections alongside the relevant <a href="#edgemetadata">EdgeMetadata</a></p>
+<pre><code class="language-python">def __init__(
+    self, 
+    coords: list[float], 
+    id: str, 
+    hubType: str
+):
+</code></pre>
+<h4 id="fields">fields</h4>
+<ul>
+<li>coords: list[float]: the coordinates of the <code>Hub</code>. (NOTE: this can be any ndim coordinate aslong as it fits with the rest)</li>
+<li>id: str = a string id like iata code UNLOCODE or whatever you want (NOTE: must be unique for the hubType)</li>
+<li>hubType: str = the type of hub this will be (e.g. <code>airport</code>, <code>trainstation</code>,...)</li>
+</ul>
+<h4 id="adding-edges">adding edges</h4>
+<pre><code class="language-python">def addOutgoing(
+    self, 
+    mode: str, 
+    dest_id: str, 
+    metrics: EdgeMetadata):
+</code></pre>
+<h4 id="args_8">args</h4>
+<ul>
+<li>mode: str = the mode of transport along this edge (e.g. <code>plane</code>, <code>car</code>,...)</li>
+<li>dest_id: str = the id of the destination Hub</li>
+<li>metrics: <a href="#edgemetadata">EdgeMetadata</a> = the edge object that stores the metrics for this connection</li>
+</ul>
+<h4 id="getting-the-edge-metrics">getting the edge metrics</h4>
+<p>Get the edgeMetadata from this Hub to another, with a given transport mode</p>
+<pre><code class="language-python">def getMetrics(
+    self, 
+    mode: str, 
+    dest_id: str
+)-&gt; EdgeMetadata:
+</code></pre>
+<h4 id="args_9">args</h4>
+<ul>
+<li>mode: str = the mode of transport along the edge</li>
+<li>dest_id: str = the id of the destination Hub</li>
+</ul>
+<p><strong>returns:</strong> the edgeMetadata or None if this edge doesn't exist</p>
+<h2 id="-_2">---</h2>
+<h3 id="edgemetadata">EdgeMetadata</h3>
+<p>These objects store data about one edge such as the <code>transport mode</code> and metrics like <code>distance</code> etc.</p>
+<pre><code class="language-python">def __init__(
+    self, 
+    transportMode: str = None, 
+    **metrics):
+</code></pre>
+<h4 id="args_10">args</h4>
+<ul>
+<li>transportMode: str = the transpot mode across this edge</li>
+<li>**metrics: dict = a dictionary of edge metrics like <code>distance</code>, <code>time</code> etc</li>
+</ul>
+<h4 id="example_7">example</h4>
+<p>create data for an edge that is traversed via <code>plane</code>, has a <code>distance</code> of <code>100.0</code> and <code>cost</code> of <code>250.0</code></p>
+<pre><code class="language-python">edgeData = EdgeMetadata(
+    transportMode = 'plane',
+    **{'distance': 100.0, 'cost': '250.0'}
+)
+</code></pre>
+<h4 id="get-a-specific-metric">get a specific metric</h4>
+<pre><code class="language-python">def getMetric(
+    self,
+    metric: OptimizationMetric | str
+):
+</code></pre>
+<h4 id="args_11">args</h4>
+<ul>
+<li>metric: str = the name of the metric you want to retrieve</li>
+</ul>
+<h2 id="-_3">---</h2>
+<h3 id="route">Route</h3>
+<p>A dataclass to store all route related data; like Hubs and edges.</p>
+<h4 id="fields_1">fields</h4>
+<pre><code class="language-python">path: list[tuple[str, str]]
+totalMetrics: EdgeMetadata
+optimizedMetric: OptimizationMetric
+</code></pre>
+<h4 id="properties">properties</h4>
+<hr />
+<pre><code>@property
+    def flatPath(
+        self, 
+        toStr=True):
+</code></pre>
+<p>By calling <code>route.flatPath</code> you will get the string representation of the route </p>
+<h4 id="example-output">example output</h4>
+<blockquote>
+<p>NOTE: this is a verbose route from <code>-1.680000, 29.258334</code> to <code>3.490000, 35.840000</code>, connected through airports with data from <a href="https://openflights.org/data.php">open flights</a></p>
+</blockquote>
+<pre><code class="language-text">Start: GOM
+        Edge: (transportMode=plane, metrics={'distance': 85.9251874180552})
+-&gt; BKY
+        Edge: (transportMode=drive, metrics={'distance': np.float32(20.288797)})
+-&gt; KME
+        Edge: (transportMode=plane, metrics={'distance': 147.44185301830063})
+-&gt; KGL
+        Edge: (transportMode=plane, metrics={'distance': 757.9567739118678})
+-&gt; NBO
+        Edge: (transportMode=plane, metrics={'distance': 515.1466233682448})
+-&gt; LOK
+</code></pre>
+<h3 id="filter">Filter</h3>
+<p>The <code>Filter</code> class is an abstract class you can implement to add custom filter to you searches</p>
+<h4 id="example_8">example</h4>
+<pre><code class="language-python">class ExampleFilter(Filter):
+
+    def __init__(
+        self, 
+        forbiddenHubs: list[str], 
+        filterVal: str | float
+    ):
+        self.forbiddenHubs = forbiddenHubs
+        self.filterVal = filterVal
+
+    def filterHub(self, hub: Hub) -&gt; bool:
+        return hub.id not in self.forbiddenHubs
+
+    def filterEdge(self, edge: EdgeMetadata) -&gt; bool:
+        return edge.getMetric('distance') &lt; 3 and edge.getMetric('yourCustomMetric') != self.filterVal
+</code></pre>
+<p>This <code>ExampleFilter</code> will remove all hubs with Ids in the forbidden hubs list and ignore all edges where: $distance &gt; 3 \lor customMetric = filterVal $</p>
+<p>To make your own <code>Filter</code> just implement the <code>__init__</code>, <code>filterHUb</code> &amp; <code>filterEdge</code> functions and pass an object to the search (custom_filter = your flter object)</p>
+<blockquote>
+<p>Tipp: if you want to only add a filter for either Hubs or Edges set the function that shouldn't filter to return <code>True</code></p>
+</blockquote>
+<p><strong>example</strong></p>
+<pre><code class="language-python">def filterHub(self, hub: Hub) -&gt; bool:
+    return True
+</code></pre>
+<p>will let any hub pass through the filter</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

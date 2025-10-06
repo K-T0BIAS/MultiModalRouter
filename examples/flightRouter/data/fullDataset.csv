@@ -1,0 +1,101 @@
+type_x,source_name,source_lat,source_lng,source,type_y,destination_name,destination_lat,destination_lng,destination,distance
+small_airport,Nunapitchuk Airport,60.905591,-162.440454,NUP,medium_airport,Bethel Airport,60.77980042,-161.8379974,BET,35.50891861257026
+small_airport,Nunapitchuk Airport,60.905591,-162.440454,NUP,small_airport,Atmautluak Airport,60.866699,-162.272996,ATT,10.038962939026435
+seaplane_base,Port Protection Seaplane Base,56.328800201416,-133.61000061035,PPV,medium_airport,Ketchikan International Airport,55.35559845,-131.7140045,KTN,160.3721674641772
+small_airport,Atmautluak Airport,60.866699,-162.272996,ATT,small_airport,Kasigluk Airport,60.872747,-162.5247,KUK,13.641155702721525
+small_airport,Atmautluak Airport,60.866699,-162.272996,ATT,medium_airport,Bethel Airport,60.77980042,-161.8379974,BET,25.48337320882719
+small_airport,Ouzinkie Airport,57.942094,-152.464314,KOZ,small_airport,Port Lions Airport,57.884905,-152.847719,ORI,23.522288770693002
+small_airport,Ouzinkie Airport,57.942094,-152.464314,KOZ,medium_airport,Kodiak Airport,57.75,-152.4940033,ADQ,21.432013590596263
+small_airport,Tununak Airport,60.569638,-165.246649,TNK,small_airport,Mertarvik Airport,60.81037,-164.499511,WWT,48.68780922120069
+small_airport,Tununak Airport,60.569638,-165.246649,TNK,small_airport,Mertarvik Airport,60.81037,-164.499511,WWT,48.68780922120069
+small_airport,Minto Al Wright Airport,65.147991,-149.368658,MNT,medium_airport,Fairbanks International Airport,64.815102,-147.856003,FAI,80.18507978147673
+seaplane_base,Whale Pass Seaplane Float Harbor Facility,56.116299,-133.121994,WWP,seaplane_base,Naukati Bay Seaplane Base,55.849602,-133.227994,NKI,30.379585733808945
+small_airport,Chuathbaluk Airport,61.579102,-159.216003,CHU,small_airport,Crooked Creek Airport,61.870315,-158.137636,CKD,65.38238505420615
+small_airport,Levelock Airport,59.12606,-156.860906,KLL,small_airport,Igiugig Airport,59.324001,-155.901993,IGG,58.828992456169594
+small_airport,Tuntutuliak Airport,60.351243,-162.654476,WTL,small_airport,Kongiganak Airport,59.9608,-162.880997,KKH,45.188440482713354
+small_airport,Tuntutuliak Airport,60.351243,-162.654476,WTL,medium_airport,Bethel Airport,60.77980042,-161.8379974,BET,65.2786595888185
+small_airport,Chignik Lake Airport,56.2550010681,-158.774993896,KCQ,small_airport,Perryville Airport,55.9065,-159.16091,KPV,45.55296472659558
+small_airport,Ulawa Airport,-9.86054358262,161.979546547,RNA,large_airport,Honiara International Airport,-9.428,160.054993,HIR,216.38820067708903
+small_airport,Ulawa Airport,-9.86054358262,161.979546547,RNA,small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,66.11653988838862
+small_airport,Uru Harbour Airport,-8.87333,161.011002,ATD,large_airport,Honiara International Airport,-9.428,160.054993,HIR,121.73124157936162
+small_airport,Bellona/Anua Airport,-11.3022222222,159.798333333,BNY,large_airport,Honiara International Airport,-9.428,160.054993,HIR,210.28617119708878
+small_airport,Bellona/Anua Airport,-11.3022222222,159.798333333,BNY,small_airport,Rennell/Tingoa Airport,-11.55,160.062778,RNL,39.87237198952627
+small_airport,Choiseul Bay Airport,-6.711944,156.396111,CHY,small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,162.5049617838888
+small_airport,Fera/Maringe Airport,-8.1075,159.576996,FRE,large_airport,Honiara International Airport,-9.428,160.054993,HIR,155.94596147929755
+small_airport,Fera/Maringe Airport,-8.1075,159.576996,FRE,small_airport,Suavanao Airport,-7.58556,158.731003,VAO,109.78386316421907
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Bauerfield International Airport,-17.699301,168.320007,VLI,1281.5410455884694
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Uru Harbour Airport,-8.87333,161.011002,ATD,121.73124157936162
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Brisbane International Airport,-27.38419914245605,153.11700439453125,BNE,2125.197199470748
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Bellona/Anua Airport,-11.3022222222,159.798333333,BNY,210.28617119708878
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Choiseul Bay Airport,-6.711944,156.396111,CHY,503.4301040975509
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Sege Airport,-8.57889,157.876007,EGM,257.25669923971793
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Fera/Maringe Airport,-8.1075,159.576996,FRE,155.94596147929755
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,380.58997472323
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,231.62836439151877
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Kaghau Airport,-7.3305,157.585,KGE,358.07676558742975
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,medium_airport,Munda Airport,-8.32797,157.263,MUA,330.2196835379018
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,medium_airport,Nadi International Airport,-17.755399703979492,177.4429931640625,NAN,2092.93698138901
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Santa Ana Airport,-10.847994,162.454108,NNB,306.4114913331019
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Ramata Airport,-8.168060302734375,157.64300537109375,RBV,299.78875699036024
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Ulawa Airport,-9.86054358262,161.979546547,RNA,216.38820067708903
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Rennell/Tingoa Airport,-11.55,160.062778,RNL,235.95716942961073
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Marau Airport,-9.86166954041,160.824996948,RUS,97.21320359785862
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Santa Cruz/Graciosa Bay/Luova Airport,-10.7203,165.794998,SCZ,644.616728255269
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,small_airport,Suavanao Airport,-7.58556,158.731003,VAO,251.33538811065654
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Bauerfield International Airport,-17.699301,168.320007,VLI,1281.5410455884694
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Bauerfield International Airport,-17.699301,168.320007,VLI,1281.5410455884694
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,medium_airport,Nadi International Airport,-17.755399703979492,177.4429931640625,NAN,2092.93698138901
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,1407.7980052392509
+large_airport,Honiara International Airport,-9.428,160.054993,HIR,large_airport,Brisbane International Airport,-27.38419914245605,153.11700439453125,BNE,2125.197199470748
+small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,large_airport,Honiara International Airport,-9.428,160.054993,HIR,231.62836439151877
+small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,small_airport,Santa Ana Airport,-10.847994,162.454108,NNB,75.19751316811372
+small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,small_airport,Ulawa Airport,-9.86054358262,161.979546547,RNA,66.11653988838862
+small_airport,Santa Cruz/Graciosa Bay/Luova Airport,-10.7203,165.794998,SCZ,large_airport,Honiara International Airport,-9.428,160.054993,HIR,644.616728255269
+medium_airport,Munda Airport,-8.32797,157.263,MUA,small_airport,Sege Airport,-8.57889,157.876007,EGM,72.96767843412853
+medium_airport,Munda Airport,-8.32797,157.263,MUA,small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,50.82722405648163
+medium_airport,Munda Airport,-8.32797,157.263,MUA,large_airport,Honiara International Airport,-9.428,160.054993,HIR,330.2196835379018
+medium_airport,Munda Airport,-8.32797,157.263,MUA,small_airport,Kaghau Airport,-7.3305,157.585,KGE,116.44735467761112
+small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,small_airport,Choiseul Bay Airport,-6.711944,156.396111,CHY,162.5049617838888
+small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,small_airport,Sege Airport,-8.57889,157.876007,EGM,123.52564099929795
+small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,large_airport,Honiara International Airport,-9.428,160.054993,HIR,380.58997472323
+small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,medium_airport,Munda Airport,-8.32797,157.263,MUA,50.82722405648163
+small_airport,Rennell/Tingoa Airport,-11.55,160.062778,RNL,small_airport,Bellona/Anua Airport,-11.3022222222,159.798333333,BNY,39.87237198952627
+small_airport,Rennell/Tingoa Airport,-11.55,160.062778,RNL,large_airport,Honiara International Airport,-9.428,160.054993,HIR,235.95716942961073
+small_airport,Sege Airport,-8.57889,157.876007,EGM,small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,123.52564099929795
+small_airport,Sege Airport,-8.57889,157.876007,EGM,large_airport,Honiara International Airport,-9.428,160.054993,HIR,257.25669923971793
+small_airport,Sege Airport,-8.57889,157.876007,EGM,small_airport,Ramata Airport,-8.168060302734375,157.64300537109375,RBV,52.38204651861383
+small_airport,Sege Airport,-8.57889,157.876007,EGM,small_airport,Suavanao Airport,-7.58556,158.731003,VAO,145.1191154079397
+small_airport,Santa Ana Airport,-10.847994,162.454108,NNB,large_airport,Honiara International Airport,-9.428,160.054993,HIR,306.4114913331019
+small_airport,Santa Ana Airport,-10.847994,162.454108,NNB,small_airport,Ngorangora Airport,-10.4497003555,161.897994995,IRA,75.19751316811372
+small_airport,Marau Airport,-9.86166954041,160.824996948,RUS,large_airport,Honiara International Airport,-9.428,160.054993,HIR,97.21320359785862
+small_airport,Suavanao Airport,-7.58556,158.731003,VAO,large_airport,Honiara International Airport,-9.428,160.054993,HIR,251.33538811065654
+small_airport,Kaghau Airport,-7.3305,157.585,KGE,small_airport,Nusatupe Airport,-8.09778022766,156.863998413,GZO,116.57914877867566
+small_airport,Kaghau Airport,-7.3305,157.585,KGE,medium_airport,Munda Airport,-8.32797,157.263,MUA,116.44735467761112
+small_airport,Ramata Airport,-8.168060302734375,157.64300537109375,RBV,large_airport,Honiara International Airport,-9.428,160.054993,HIR,299.78875699036024
+small_airport,Ramata Airport,-8.168060302734375,157.64300537109375,RBV,medium_airport,Munda Airport,-8.32797,157.263,MUA,45.44094741444411
+seaplane_base,Naukati Bay Seaplane Base,55.849602,-133.227994,NKI,seaplane_base,Edna Bay Seaplane Base,55.949653,-133.661012,EDA,29.19724206748465
+seaplane_base,Amook Bay Seaplane Base,57.4715003967,-153.815002441,AOS,seaplane_base,Zachar Bay Seaplane Base,57.553001,-153.746052,KZB,9.954218423033408
+medium_airport,Nauru International Airport,-0.547458,166.919006,INU,large_airport,Brisbane International Airport,-27.38419914245605,153.11700439453125,BNE,3327.7632640151937
+medium_airport,Nauru International Airport,-0.547458,166.919006,INU,medium_airport,Marshall Islands International Airport,7.06476,171.272003,MAJ,974.4960347944631
+medium_airport,Nauru International Airport,-0.547458,166.919006,INU,medium_airport,Bonriki International Airport,1.38164,173.147003,TRW,724.9332999884076
+medium_airport,Buka Airport,-5.422319889068604,154.67300415039062,BUA,medium_airport,Tokua Airport,-4.34046,152.380005,RAB,281.08421413197493
+medium_airport,Buka Airport,-5.422319889068604,154.67300415039062,BUA,small_airport,Londolovit Airport,-3.04361009598,152.628997803,LNV,348.3233345946322
+medium_airport,Buka Airport,-5.422319889068604,154.67300415039062,BUA,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,935.3716267807029
+medium_airport,Buka Airport,-5.422319889068604,154.67300415039062,BUA,medium_airport,Tokua Airport,-4.34046,152.380005,RAB,281.08421413197493
+small_airport,Bulolo Airport,-7.216286671410001,146.649541855,BUL,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,255.4701324460494
+medium_airport,Chimbu Airport,-6.024290084838867,144.9709930419922,CMU,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,453.79316712547796
+medium_airport,Daru Airport,-9.08676,143.207993,DAU,medium_airport,Nadzab Airport,-6.569803,146.725977,LAE,478.00303964492326
+medium_airport,Daru Airport,-9.08676,143.207993,DAU,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,442.0739733579925
+medium_airport,Daru Airport,-9.08676,143.207993,DAU,small_airport,Kiunga Airport,-6.1257100105285645,141.28199768066406,UNG,391.7380630804866
+medium_airport,Daru Airport,-9.08676,143.207993,DAU,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,442.0739733579925
+medium_airport,Goroka Airport,-6.081689834590001,145.391998291,GKA,medium_airport,Mount Hagen Kagamuga Airport,-5.828212,144.299412,HGU,124.07803210978558
+medium_airport,Goroka Airport,-6.081689834590001,145.391998291,GKA,medium_airport,Nadzab Airport,-6.569803,146.725977,LAE,157.10150462058704
+medium_airport,Goroka Airport,-6.081689834590001,145.391998291,GKA,medium_airport,Madang Airport,-5.20707988739,145.789001465,MAG,106.7138992902682
+medium_airport,Goroka Airport,-6.081689834590001,145.391998291,GKA,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,424.5928070950016
+medium_airport,Goroka Airport,-6.081689834590001,145.391998291,GKA,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,424.5928070950016
+medium_airport,Gurney Airport,-10.3114995956,150.333999634,GUR,small_airport,Losuia Airport,-8.505820274353027,151.08099365234375,LSA,216.85910026596767
+medium_airport,Gurney Airport,-10.3114995956,150.333999634,GUR,small_airport,Misima Island Airport,-10.6892004013,152.837997437,MIS,276.9706342250573
+medium_airport,Gurney Airport,-10.3114995956,150.333999634,GUR,medium_airport,Girua Airport,-8.80453968048,148.309005737,PNP,278.16980437426656
+medium_airport,Gurney Airport,-10.3114995956,150.333999634,GUR,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,354.5183966398174
+medium_airport,Gurney Airport,-10.3114995956,150.333999634,GUR,small_airport,Misima Island Airport,-10.6892004013,152.837997437,MIS,276.9706342250573
+medium_airport,Gurney Airport,-10.3114995956,150.333999634,GUR,large_airport,Port Moresby Jacksons International Airport,-9.44338035583496,147.22000122070312,POM,354.5183966398174
