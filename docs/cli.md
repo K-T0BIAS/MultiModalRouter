@@ -1,4 +1,4 @@
-[HOME](../README.md)
+[HOME](./index.md)
 
 # command line interface
 
@@ -22,7 +22,7 @@ multimodalrouter-build hubType1 transportMode1 pathToDataset1 --maxDist 123 --ex
     - NOTE: you can add as many hub types and datasets at once as you want just make sure the order is always; type1 mode1 path1 type2 ...
 - `--maxDist` = the float value that limits the maximum length a driving edge can have (this is irrelevant id `--enableDriving` isn't set)
 - `extraMetrics` = a list of keys that the graph will scan your data for and add the values to any edge where the key exists in the data (NOTE: each key should be present in at least one dataset, the number of extra metrics is not limited)
-- `--drivingEnabled` = if this flag is added the graph will try to build connections between hubs for any hub that is closer than the `--maxDist` to anoter hub (check [here](../README.md#important-considerations-for-your-usecase) to see if your data allows this)
+- `--drivingEnabled` = if this flag is added the graph will try to build connections between hubs for any hub that is closer than the `--maxDist` to anoter hub (check [here](./index.md#important-considerations-for-your-usecase) to see if your data allows this)
 - `--Dir` = put the target directory of the save file here. (if this is not set the graph will be saved to a default dir)
 
 ### example
