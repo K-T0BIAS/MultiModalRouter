@@ -377,7 +377,7 @@ class RouteGraph:
         max_segments: int = 10,
         verbose: bool = False,
         custom_filter: Filter = None,
-    ) -> Route | VerboseRoute |None:
+    ) -> Route | VerboseRoute | None:
         """
         Find the optimal path between two hubs using Dijkstra
 

@@ -64,7 +64,7 @@ class Hub:
     def getMetric(self, mode: str, dest_id: str, metric: str) -> float:
         connection = self.outgoing.get(mode, {}).get(dest_id)
         return getattr(connection, metric, None) if connection else None
-    
+
     def clone(self) -> "Hub":
         new = Hub(self.coords[:], self.id, self.hubType)
 
@@ -109,15 +109,15 @@ class Route:
             else:
                 pathStr += f"{edge[0]} -> {edge[1]}"
         return pathStr
-    
+
     def asGraph(self, graph):
         """
         Creates a new RouteGraph with only the hubs in the route.
         It replicates the settings from the original graph.
 
-        ### NOTE: 
+        ### NOTE:
             * the graph in the argument should be the same as the graph from which the route was created.
-            * hubs that are present in the route, but not found in the graph will be skipped 
+            * hubs that are present in the route, but not found in the graph will be skipped
 
         :param:
             graph: the graph to replicate settings from
@@ -153,12 +153,11 @@ class Route:
                 # recompute distance
                 distance = graph._hubToHubDistances([curr], [prev])[0][0].item()
                 meta = EdgeMetadata(transportMode=transpMode, distance=distance)
-            else :
+            else:
                 meta = meta.copy()
 
             subGraph._addLink(prev, curr, transpMode, **meta.metrics)
 
-        
         return subGraph
 
 
