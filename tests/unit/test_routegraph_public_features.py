@@ -8,6 +8,7 @@ import contextlib
 import pandas as pd
 from types import MethodType
 
+
 class TestRouteGraphPublicFeatures(unittest.TestCase):
 
     @classmethod
@@ -213,7 +214,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'], verbose=True)
         self.assertIsNotNone(route)
-        
+
         route_as_graph = route.asGraph(graph)
         HubA = route_as_graph.getHubById('A')
         HubB = route_as_graph.getHubById('B')
@@ -262,7 +263,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             distances = np.linalg.norm(diff, axis=2)
 
             return distances
-        
+
         graph._hubToHubDistances = MethodType(dist, graph)
 
         self.assertIsNotNone(route)
