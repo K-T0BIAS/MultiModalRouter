@@ -840,6 +840,33 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#route-to-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      Route To Graph
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      args:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      returns:
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1569,6 +1596,33 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#route-to-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      Route To Graph
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#args_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      args:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      returns:
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2155,6 +2209,18 @@ optimizedMetric: OptimizationMetric
         Edge: (transportMode=plane, metrics={'distance': 515.1466233682448})
 -&gt; LOK
 </code></pre>
+<h4 id="route-to-graph">Route To Graph</h4>
+<pre><code class="language-python">def asGraph(self, graph):
+</code></pre>
+<h4 id="args_12">args:</h4>
+<ul>
+<li>graph: <a href="#routegraph">RouteGraph</a> = The graph instance that created this route</li>
+</ul>
+<h4 id="returns">returns:</h4>
+<ul>
+<li><a href="#routegraph">RouteGraph</a> = a graph with only the nodes from the route</li>
+</ul>
+<p><strong>NOTES</strong> if the given graph is missing some hubs from the route the created graph will skip the missing hubs and include new edges to connect the present hubs. (The new edges will only include the <code>distance</code> metric, which is calculated by the passed graph's distance function)</p>
 <h3 id="filter">Filter</h3>
 <p>The <code>Filter</code> class is an abstract class you can implement to add custom filter to you searches</p>
 <h4 id="example_8">example</h4>
