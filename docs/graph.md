@@ -576,7 +576,23 @@ Start: GOM
 -> NBO
         Edge: (transportMode=plane, metrics={'distance': 515.1466233682448})
 -> LOK
+``` 
+
+#### Route To Graph
+
+```python
+def asGraph(self, graph):
 ```
+
+#### args:
+
+* graph: [RouteGraph](#routegraph) = The graph instance that created this route
+
+#### returns:
+
+* [RouteGraph](#routegraph) = a graph with only the nodes from the route
+
+**NOTES** if the given graph is missing some hubs from the route the created graph will skip the missing hubs and include new edges to connect the present hubs. (The new edges will only include the `distance` metric, which is calculated by the passed graph's distance function)
 
 ### Filter 
 
