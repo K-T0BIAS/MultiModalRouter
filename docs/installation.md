@@ -1,4 +1,4 @@
-[HOME](../README.md)
+[HOME](./index.md)
 
 # Installation Guide
 
@@ -7,7 +7,7 @@
 First check if your data comes with precomputed distances and if you are going to want to use the default [driving connections](./graph.md) when building your graph.
 Depending on your choices you will need to install the library with torch. To see what your use case requires check the table below and copy the command.
 
-| data has distances | use driving edges | planning to use build-in [Haversine distance](../src/multimodalrouter/graph/graph.py) | installation mode                   |
+| data has distances | use driving edges | planning to use build-in Haversine distance | installation mode                   |
 |--------------------|-------------------|---------------------------------------------|-------------------------------------|
 |       YES          |        YES        | / |`pip install multimodalrouter[torch]`|
 |       YES          |        NO         | / |`pip install multimodalrouter[torch]`|

@@ -1,0 +1,17 @@
+site_name: Multi Modal Router Documentation
+site_url: https://mydomain.org/multimodalrouter-docs
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Installation Guide: installation.md
+  - Graph: graph.md
+  - Visualization: visualization.md
+  - Command Line Interface: cli.md
+  - Utils: utils.md
+  - License: LICENSE.md
+  - Notice: NOTICE.md
+markdown_extensions:
+  - pymdownx.arithmatex
+
+

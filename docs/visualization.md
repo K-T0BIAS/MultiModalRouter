@@ -1,4 +1,4 @@
-[HOME](../README.md)
+[HOME](./index.md)
 
 # Graph Plotting
 
