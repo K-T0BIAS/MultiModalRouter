@@ -9,7 +9,7 @@ import dill
 import heapq
 import os
 import pandas as pd
-from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter
+from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute
 from threading import Lock
 from collections import deque
 
@@ -377,7 +377,7 @@ class RouteGraph:
         max_segments: int = 10,
         verbose: bool = False,
         custom_filter: Filter = None,
-    ) -> Route | None:
+    ) -> Route | VerboseRoute |None:
         """
         Find the optimal path between two hubs using Dijkstra
 

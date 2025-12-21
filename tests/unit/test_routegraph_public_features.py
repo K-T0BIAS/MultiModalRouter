@@ -6,7 +6,7 @@ import tempfile
 import io
 import contextlib
 import pandas as pd
-
+from types import MethodType
 
 class TestRouteGraphPublicFeatures(unittest.TestCase):
 
@@ -196,6 +196,107 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertEqual(modes, ['', 'mv', 'mv'])
         for d in data:
             self.assertIsNotNone(d)
+
+    def test_find_shortest_path_valid_route_as_graph(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+            graph.build()
+
+        route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'], verbose=True)
+        self.assertIsNotNone(route)
+        
+        route_as_graph = route.asGraph(graph)
+        HubA = route_as_graph.getHubById('A')
+        HubB = route_as_graph.getHubById('B')
+        HubD = route_as_graph.getHubById('D')
+
+        self.assertIsNotNone(HubA)
+        self.assertIsNotNone(HubB)
+        self.assertIsNotNone(HubD)
+
+        self.assertEqual(HubA.hubType, 'H')
+        self.assertEqual(HubB.hubType, 'H')
+        self.assertEqual(HubD.hubType, 'H')
+
+        self.assertTrue('B' in HubA.outgoing['mv'].keys())
+        self.assertTrue(len(HubA.outgoing['mv'].keys()), 1)
+
+        self.assertTrue('D' in HubB.outgoing['mv'].keys())
+        self.assertTrue(len(HubB.outgoing['mv'].keys()), 1)
+
+        self.assertTrue(len(HubD.outgoing.keys()) == 0)
+
+    def test_find_shortest_path_valid_graph_to_route_with_missing_hub(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False
+        )
+
+        f = io.StringIO()
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+            graph.build()
+
+        route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'])
+
+        def dist(self, hub1, hub2):
+            import numpy as np
+
+            p1 = np.array([h.coords for h in hub1], dtype=float)
+            p2 = np.array([h.coords for h in hub2], dtype=float)
+
+            diff = p1[:, None, :] - p2[None, :, :]
+
+            distances = np.linalg.norm(diff, axis=2)
+
+            return distances
+        
+        graph._hubToHubDistances = MethodType(dist, graph)
+
+        self.assertIsNotNone(route)
+        # collect original distances
+        HubA = graph.Graph['H']['A']
+        HubB = graph.Graph['H']['B']
+
+        dAB = HubA.outgoing['mv']['B'].getMetric('distance')
+        dBD = HubB.outgoing['mv']['D'].getMetric('distance')
+
+        # drop HubB
+        graph.Graph['H'].pop('B')
+
+        route_as_graph = route.asGraph(graph)
+
+        new_HubA = route_as_graph.getHubById('A')
+        new_HubD = route_as_graph.getHubById('D')
+
+        new_HubB = route_as_graph.getHubById('B')
+
+        self.assertIsNone(new_HubB)
+
+        self.assertIsNotNone(new_HubA)
+        self.assertIsNotNone(new_HubD)
+
+        self.assertEqual(new_HubA.hubType, 'H')
+        self.assertEqual(new_HubD.hubType, 'H')
+
+        self.assertTrue('D' in new_HubA.outgoing['mv'].keys())
+        self.assertTrue(len(new_HubA.outgoing['mv'].keys()), 1)
+
+        self.assertTrue(len(new_HubD.outgoing.keys()) == 0)
+        # sum is allowed since A, B, D share the same lng coord (and live in 2d space)
+        self.assertAlmostEqual(dAB + dBD, new_HubA.outgoing['mv']['D'].getMetric('distance'), places=5)
 
     def test_find_shortest_path_invalid_path(self):
         graph = RouteGraph(

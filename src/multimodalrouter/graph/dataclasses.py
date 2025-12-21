@@ -64,6 +64,15 @@ class Hub:
     def getMetric(self, mode: str, dest_id: str, metric: str) -> float:
         connection = self.outgoing.get(mode, {}).get(dest_id)
         return getattr(connection, metric, None) if connection else None
+    
+    def clone(self) -> "Hub":
+        new = Hub(self.coords[:], self.id, self.hubType)
+
+        for mode, dests in self.outgoing.items():
+            for dest_id, meta in dests.items():
+                new.addOutgoing(mode, dest_id, meta.copy())
+
+        return new
 
     def __hash__(self):
         return hash((self.hubType, self.id))
@@ -100,6 +109,57 @@ class Route:
             else:
                 pathStr += f"{edge[0]} -> {edge[1]}"
         return pathStr
+    
+    def asGraph(self, graph):
+        """
+        Creates a new RouteGraph with only the hubs in the route.
+        It replicates the settings from the original graph.
+
+        ### NOTE: 
+            * the graph in the argument should be the same as the graph from which the route was created.
+            * hubs that are present in the route, but not found in the graph will be skipped 
+
+        :param:
+            graph: the graph to replicate settings from
+
+        :returns:
+            a new RouteGraph with the specified settings and the added route
+        """
+        from . import RouteGraph
+        subGraph = RouteGraph(
+            maxDistance=graph.maxDrivingDistance,
+            transportModes=graph.TransportModes,
+            compressed=graph.compressed,
+            extraMetricsKeys=graph.extraMetricsKeys,
+            drivingEnabled=graph.drivingEnabled,
+            sourceCoordKeys=graph.sourceCoordKeys,
+            destCoordKeys=graph.destCoordKeys
+        )
+        # gets the hubs from the route (if not present in graph the hub will be dropped)
+        hubs: list[Hub] = [graph.getHubById(edge[0]) for edge in self.path if graph.getHubById(edge[0])]
+
+        copies = [hub.clone() for hub in hubs]
+
+        # add all hubs to subGraph
+        for hub in copies:
+            subGraph.addHub(hub)
+
+        # add links between consecutive hubs
+        for prev, curr in zip(copies, copies[1:]):
+            transpMode = graph.TransportModes[prev.hubType]
+
+            meta = prev.getMetrics(transpMode, curr.id)
+            if meta is None:
+                # recompute distance
+                distance = graph._hubToHubDistances([curr], [prev])[0][0].item()
+                meta = EdgeMetadata(transportMode=transpMode, distance=distance)
+            else :
+                meta = meta.copy()
+
+            subGraph._addLink(prev, curr, transpMode, **meta.metrics)
+
+        
+        return subGraph
 
 
 @dataclass
