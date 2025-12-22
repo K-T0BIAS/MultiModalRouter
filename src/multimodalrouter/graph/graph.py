@@ -10,7 +10,7 @@ import heapq
 import os
 import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute
-from threading import Lock
+from .exceptions import FrozenException
 from collections import deque
 
 
@@ -23,23 +23,26 @@ class RouteGraph:
         # dict like {hubtype -> "airport": "fly", "shippingport": "shipping"}
         transportModes: dict[str, str],
         # dict like {hubtype -> "airport": path -> "airports.csv", "shippingport": "shippingports.csv"}
-        dataPaths: dict[str, str] = {},
+        dataPaths: dict[str, str] = None,
         # if true model file will be compressed otherwise normal .dill file
         compressed: bool = False,
         # list of extra columns to add to the edge metadata (dynamically added to links when key is present in dataser)
-        extraMetricsKeys: list[str] = [],
+        extraMetricsKeys: list[str] = None,
         # if true will connect hubs with driving edges
         drivingEnabled: bool = True,
         # a list of coordinate names for the source coords in the datasets (name to dataset matching is automatic)
-        sourceCoordKeys: list[str] = ["source_lat", "source_lng"],
+        sourceCoordKeys: list[str] = None,
         # a list of coordinate names for the destination coords in the datasets (name to dataset matching is automatic)
-        destCoordKeys: list[str] = ["destination_lat", "destination_lng"],
+        destCoordKeys: list[str] = None,
     ):
-        self.sourceCoordKeys = set(sourceCoordKeys)
-        self.destCoordKeys = set(destCoordKeys)
+        self.sourceCoordKeys = set(sourceCoordKeys) or set(["source_lat", "source_lng"])
+        self.destCoordKeys = set(destCoordKeys) or set(["destination_lat", "destination_lng"])
+
+        # used to make graph read only (in mp mode or for other safety reasons) 
+        self._freeze = False
 
         self.compressed = compressed
-        self.extraMetricsKeys = extraMetricsKeys
+        self.extraMetricsKeys = extraMetricsKeys or []
         self.drivingEnabled = drivingEnabled
 
         self.TransportModes = transportModes
@@ -47,30 +50,29 @@ class RouteGraph:
         self.Graph: dict[str, dict[str, Hub]] = {}
 
         # save the paths to the data in the state dict
+        if dataPaths is None:
+            dataPaths = {}
+
         for key, value in dataPaths.items():
             setattr(self, key + "DataPath", value)
             self.Graph[key] = {}
 
         self.maxDrivingDistance = maxDistance
 
-        self._lock = Lock()
-
     def __getstate__(self):
         state = self.__dict__.copy()
-
-        # remove attributes that break pickle
-        if "_lock" in state:
-            del state["_lock"]
-
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        # set the lock for thread safety
-        from threading import Lock
-        self._lock = Lock()
 
     # =========== public helpers ==========
+
+    def freeze(self):
+        self._freeze = True
+
+    def unfreeze(self):
+        self._freeze = False
 
     def findClosestHub(self, allowedHubTypes: list[str], coords: list[float]) -> Hub | None:
         """
@@ -109,16 +111,18 @@ class RouteGraph:
         Returns:
             None
         """
-        with self._lock:
-            hubType = hub.hubType
-            # if the hub type doesnt exist in the graph, create it first
-            if hubType not in self.Graph:
-                self.Graph[hubType] = {}
-            # exit if the hub already exists
-            if hub.id in self.Graph[hubType]:
-                return
-            # add the hub
-            self.Graph[hubType][hub.id] = hub
+        if self._freeze:
+            raise FrozenException("addHub")
+
+        hubType = hub.hubType
+        # if the hub type doesnt exist in the graph, create it first
+        if hubType not in self.Graph:
+            self.Graph[hubType] = {}
+        # exit if the hub already exists
+        if hub.id in self.Graph[hubType]:
+            return
+        # add the hub
+        self.Graph[hubType][hub.id] = hub
 
     def getHub(self, hubType: str, id: str) -> Hub | None:
         """
@@ -166,20 +170,18 @@ class RouteGraph:
             - Compressed: <filepath>.zlib
             - Uncompressed: <filepath>.dill
         """
-        with self._lock:
-
-            # ensure correct compression type is set for loading the graph
-            self.compressed = compressed
-            os.makedirs(filepath, exist_ok=True)
-            # save the graph
-            pickled = dill.dumps(self)
-            if compressed:
-                compressed = zlib.compress(pickled)
-                with open(os.path.join(filepath, "graph.zlib"), "wb") as f:
-                    f.write(compressed)
-            else:
-                with open(os.path.join(filepath, "graph.dill"), "wb") as f:
-                    f.write(pickled)
+        # ensure correct compression type is set for loading the graph
+        self.compressed = compressed
+        os.makedirs(filepath, exist_ok=True)
+        # save the graph
+        pickled = dill.dumps(self)
+        if compressed:
+            compressed = zlib.compress(pickled)
+            with open(os.path.join(filepath, "graph.zlib"), "wb") as f:
+                f.write(compressed)
+        else:
+            with open(os.path.join(filepath, "graph.dill"), "wb") as f:
+                f.write(pickled)
 
     @staticmethod
     def load(filepath: str, compressed: bool = False) -> "RouteGraph":
@@ -220,15 +222,17 @@ class RouteGraph:
         """
         Add a connection between two hubs, dynamically storing extra metrics.
         """
-        with self._lock:
-            if extraData is None:
-                extraData = {}
-            # combine required metrics with extra
-            metrics = {"distance": distance, **extraData}
-            edge = EdgeMetadata(transportMode=mode, **metrics)
-            hub1.addOutgoing(mode, hub2.id, edge)
-            if bidirectional:
-                hub2.addOutgoing(mode, hub1.id, edge.copy())
+        if self._freeze:
+            raise FrozenException("_addLink")
+        
+        if extraData is None:
+            extraData = {}
+        # combine required metrics with extra
+        metrics = {"distance": distance, **extraData}
+        edge = EdgeMetadata(transportMode=mode, **metrics)
+        hub1.addOutgoing(mode, hub2.id, edge)
+        if bidirectional:
+            hub2.addOutgoing(mode, hub1.id, edge.copy())
 
     def _loadData(self, targetHubType: str):
         dataPath = getattr(self, targetHubType + "DataPath")
@@ -252,6 +256,9 @@ class RouteGraph:
         Generate Hub instances and link them with EdgeMetadata.
         Extra columns in the data will be added to EdgeMetadata dynamically.
         """
+        if self._freeze:
+            raise FrozenException("_generateHubs")
+
         # no lock needed since underlying methods have locks
         for hubType in self.Graph.keys():
             data = self._loadData(hubType)
@@ -339,6 +346,9 @@ class RouteGraph:
     # ============= public key functions =============
 
     def build(self):
+        if self._freeze:
+            raise FrozenException("build")
+
         self._generateHubs()
         # exit here if not driving edges are allowed
         if not self.drivingEnabled:
