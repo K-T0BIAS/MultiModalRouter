@@ -10,9 +10,8 @@ import heapq
 import os
 import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute
-from threading import Lock
 from collections import deque
-
+from .exceptions import FrozenException, NotSafeReadingStateWarning
 
 class RouteGraph:
 
@@ -53,24 +52,25 @@ class RouteGraph:
 
         self.maxDrivingDistance = maxDistance
 
-        self._lock = Lock()
+        self._IdToHub: dict[str, Hub] = {}
+
+        self.frozen = False
 
     def __getstate__(self):
         state = self.__dict__.copy()
-
-        # remove attributes that break pickle
-        if "_lock" in state:
-            del state["_lock"]
 
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        # set the lock for thread safety
-        from threading import Lock
-        self._lock = Lock()
 
     # =========== public helpers ==========
+
+    def freeze(self):
+        self.frozen = True
+
+    def unfreeze(self):
+        self.frozen = False
 
     def findClosestHub(self, allowedHubTypes: list[str], coords: list[float]) -> Hub | None:
         """
@@ -109,16 +109,38 @@ class RouteGraph:
         Returns:
             None
         """
-        with self._lock:
-            hubType = hub.hubType
-            # if the hub type doesnt exist in the graph, create it first
-            if hubType not in self.Graph:
-                self.Graph[hubType] = {}
-            # exit if the hub already exists
-            if hub.id in self.Graph[hubType]:
-                return
-            # add the hub
-            self.Graph[hubType][hub.id] = hub
+        if self.frozen:
+            raise FrozenException(f"addHub(hub: Hub={hub.id})")
+        
+        hubType = hub.hubType
+        # if the hub type doesnt exist in the graph, create it first
+        if hubType not in self.Graph:
+            self.Graph[hubType] = {}
+        # add the hub
+        self.Graph[hubType][hub.id] = hub
+        self._IdToHub[hub.id] = hub
+
+    def removeHub(self, id: str):
+
+        if self.frozen:
+            raise FrozenException(f"removeHub(id: str={id})")
+
+        hub = self._IdToHub.get(id)
+        if hub is None:
+            return
+
+        # delete all edges connected to the hub
+        for other in self._allHubs():
+            for outgoing in other.outgoing.values():
+                outgoing.pop(id, None)
+
+        # remove from main graph
+        del self.Graph[hub.hubType][id]
+
+        # remove from fast lookup map
+        del self._IdToHub[id]
+
+                
 
     def getHub(self, hubType: str, id: str) -> Hub | None:
         """
@@ -143,11 +165,7 @@ class RouteGraph:
         Returns:
             Hub instance if found, None otherwise
         """
-        for hubType in self.Graph:
-            hub = self.Graph[hubType].get(id)
-            if hub:
-                return hub
-        return None
+        return self._IdToHub.get(id, None)
 
     def save(
         self,
@@ -166,20 +184,18 @@ class RouteGraph:
             - Compressed: <filepath>.zlib
             - Uncompressed: <filepath>.dill
         """
-        with self._lock:
-
-            # ensure correct compression type is set for loading the graph
-            self.compressed = compressed
-            os.makedirs(filepath, exist_ok=True)
-            # save the graph
-            pickled = dill.dumps(self)
-            if compressed:
-                compressed = zlib.compress(pickled)
-                with open(os.path.join(filepath, "graph.zlib"), "wb") as f:
-                    f.write(compressed)
-            else:
-                with open(os.path.join(filepath, "graph.dill"), "wb") as f:
-                    f.write(pickled)
+        # ensure correct compression type is set for loading the graph
+        self.compressed = compressed
+        os.makedirs(filepath, exist_ok=True)
+        # save the graph
+        pickled = dill.dumps(self)
+        if compressed:
+            compressed = zlib.compress(pickled)
+            with open(os.path.join(filepath, "graph.zlib"), "wb") as f:
+                f.write(compressed)
+        else:
+            with open(os.path.join(filepath, "graph.dill"), "wb") as f:
+                f.write(pickled)
 
     @staticmethod
     def load(filepath: str, compressed: bool = False) -> "RouteGraph":
@@ -220,15 +236,17 @@ class RouteGraph:
         """
         Add a connection between two hubs, dynamically storing extra metrics.
         """
-        with self._lock:
-            if extraData is None:
-                extraData = {}
-            # combine required metrics with extra
-            metrics = {"distance": distance, **extraData}
-            edge = EdgeMetadata(transportMode=mode, **metrics)
-            hub1.addOutgoing(mode, hub2.id, edge)
-            if bidirectional:
-                hub2.addOutgoing(mode, hub1.id, edge.copy())
+        if self.frozen:
+            raise FrozenException(f"_addLink(hub1: Hub={hub1.id}, hub2: Hub={hub2.id})")
+
+        if extraData is None:
+            extraData = {}
+        # combine required metrics with extra
+        metrics = {"distance": distance, **extraData}
+        edge = EdgeMetadata(transportMode=mode, **metrics)
+        hub1.addOutgoing(mode, hub2.id, edge)
+        if bidirectional:
+            hub2.addOutgoing(mode, hub1.id, edge.copy())
 
     def _loadData(self, targetHubType: str):
         dataPath = getattr(self, targetHubType + "DataPath")
@@ -252,6 +270,8 @@ class RouteGraph:
         Generate Hub instances and link them with EdgeMetadata.
         Extra columns in the data will be added to EdgeMetadata dynamically.
         """
+        if self.frozen:
+            raise FrozenException("_generateHubs()")
         # no lock needed since underlying methods have locks
         for hubType in self.Graph.keys():
             data = self._loadData(hubType)
@@ -339,6 +359,9 @@ class RouteGraph:
     # ============= public key functions =============
 
     def build(self):
+        if self.frozen:
+            raise FrozenException("build()")
+
         self._generateHubs()
         # exit here if not driving edges are allowed
         if not self.drivingEnabled:
@@ -391,6 +414,9 @@ class RouteGraph:
         Returns:
             Route object with the optimal path, or None if no path exists
         """
+
+        if not self.frozen:
+            print(NotSafeReadingStateWarning("find_shortest_path()"))
 
         # check if start and end hub exist
         start_hub = self.getHubById(start_id)

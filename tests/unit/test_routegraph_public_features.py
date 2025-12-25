@@ -31,10 +31,6 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         cls.temp_dir.cleanup()
 
     def setUp(self):
-        # make init use the mock lock
-        patcher = patch('multimodalrouter.graph.graph.Lock')
-        self.addCleanup(patcher.stop)  # ensure patch is removed after test
-        mock_lock_class = patcher.start()
 
         self.graph = RouteGraph(
             maxDistance=50,
@@ -44,8 +40,6 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             extraMetricsKeys=[],
             drivingEnabled=True
         )
-
-        self.mock_lock = mock_lock_class.return_value
 
     def test_getHUb_from_empty_graph(self):
         hub = self.graph.getHub('H', 1)
@@ -62,9 +56,6 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         hub = Hub(id=1, hubType='H', coords=[1, 1])
 
         self.graph.addHub(hub)
-        # check that the lock was used to access the graph
-        self.mock_lock.__enter__.assert_called_once()
-        self.mock_lock.__exit__.assert_called_once()
 
         retrievedHub = self.graph.getHub('H', 1)
         self.assertEqual(retrievedHub, hub)
@@ -275,7 +266,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         dBD = HubB.outgoing['mv']['D'].getMetric('distance')
 
         # drop HubB
-        graph.Graph['H'].pop('B')
+        graph.removeHub('B')
 
         route_as_graph = route.asGraph(graph)
 

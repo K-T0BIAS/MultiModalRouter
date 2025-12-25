@@ -44,11 +44,7 @@ class TestRouteGraphPrivateMethods(unittest.TestCase):
         cls.temp_dir.cleanup()
 
     def setUp(self):
-        # make init use the mock lock
-        patcher = patch('multimodalrouter.graph.graph.Lock')
-        self.addCleanup(patcher.stop)  # ensure patch is removed after test
-        mock_lock_class = patcher.start()
-        self.mock_lock = mock_lock_class.return_value
+        pass
 
     def test_getAllHubs(self):
         hubs = list(self.mainGraph._allHubs())
