@@ -12,6 +12,7 @@ import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute
 from collections import deque
 from .exceptions import FrozenException, NotSafeReadingStateWarning
+from threading import Lock
 
 class RouteGraph:
 
@@ -55,19 +56,29 @@ class RouteGraph:
         self._IdToHub: dict[str, Hub] = {}
 
         self.frozen = False
+        self._lock = Lock()
 
     def __getstate__(self):
         state = self.__dict__.copy()
+
+        # remove attributes that break pickle
+        if "_lock" in state:
+            del state["_lock"]
 
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
 
+        from threading import Lock
+        self._lock = Lock()
+
     # =========== public helpers ==========
 
     def freeze(self):
-        self.frozen = True
+        with self._lock:
+            self.frozen = True
+            self._flatten_edges()
 
     def unfreeze(self):
         self.frozen = False
