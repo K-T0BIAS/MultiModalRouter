@@ -407,6 +407,8 @@ class RouteGraph:
 
         if allowed_modes is None:
             allowed_modes = list(self.TransportModes.values())
+            if self.drivingEnabled:
+                allowed_modes.append("car")
 
         if start_id == end_id:
             # create a route with only the start hub
