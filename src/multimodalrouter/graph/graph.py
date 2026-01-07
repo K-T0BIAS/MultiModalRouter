@@ -290,7 +290,11 @@ class RouteGraph:
                     added.add(row.destination)
 
                 # get extra metrics
-                extra_metrics = {col: getattr(row, col) for col in extra_metric_cols}
+                extra_metrics = {
+                    col: getattr(row, col)
+                    for col in extra_metric_cols
+                    if hasattr(row, col)
+                }
 
                 # link with the extra metrics
                 self._addLink(
