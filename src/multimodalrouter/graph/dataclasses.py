@@ -172,14 +172,14 @@ class VerboseRoute(Route):
 class PathNode:
     hub_id: str
     mode: str
-    edge_metrics: EdgeMetadata
+    edge: EdgeMetadata
     prev: Optional["PathNode"]
 
     @property
     def length(self) -> int:
         return 0 if self.prev is None else self.prev.length + 1
 
-    def iter(self) -> Iterable["PathNode"]:
+    def __iter__(self) -> Iterable["PathNode"]:
         node = self
         stack = []
         while node:

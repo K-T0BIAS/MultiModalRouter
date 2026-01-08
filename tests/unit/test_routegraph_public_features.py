@@ -768,10 +768,8 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
             def filter(self, start, end, edge, path):
                 depth = 0
-                node = path
-                while node:
+                for _ in path: # use this to test __iter__
                     depth += 1
-                    node = node.prev
                 return depth < 2
 
         testDf = pd.DataFrame(

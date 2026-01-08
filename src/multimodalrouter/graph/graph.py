@@ -356,7 +356,7 @@ class RouteGraph:
         start_path = PathNode(
             hub_id=start_id,
             mode="",
-            edge_metrics=EdgeMetadata(),
+            edge=EdgeMetadata(),
             prev=None,
         )
 
@@ -430,7 +430,7 @@ class RouteGraph:
                     new_path_node = PathNode(
                         hub_id=next_hub_id,
                         mode=mode,
-                        edge_metrics=conn_metrics,
+                        edge=conn_metrics,
                         prev=path_node,
                     )
 
@@ -450,13 +450,13 @@ class RouteGraph:
     ) -> Route:
         if verbose:
             path = [
-                (n.hub_id, n.mode, n.edge_metrics)
-                for n in path_node.iter()
+                (n.hub_id, n.mode, n.edge)
+                for n in path_node
             ]
         else:
             path = [
                 (n.hub_id, n.mode)
-                for n in path_node.iter()
+                for n in path_node
             ]
 
         return Route(
