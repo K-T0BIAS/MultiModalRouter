@@ -195,5 +195,5 @@ class Filter(ABC):
         """
         pass
 
-    def filter(self, start: Hub, end: Hub, edge: EdgeMetadata) -> bool:
+    def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, current_path: list = None) -> bool:
         return self.filterHub(start) and self.filterHub(end) and self.filterEdge(edge)
