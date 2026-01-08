@@ -477,7 +477,10 @@ class RouteGraph:
                             raise ValueError(
                                 f"Hub with ID '{next_hub_id}' not found in graph! But it is connected to hub '{current_hub_id}' via mode '{mode}'." # noqa: E501
                             )
-                        if custom_filter is not None and not custom_filter.filter(current_hub, next_hub, connection_metrics, path_with_modes):
+                        if (
+                            custom_filter is not None and
+                            not custom_filter.filter(current_hub, next_hub, connection_metrics, path_with_modes)
+                        ):
                             continue
 
                         # get the selected metric alue for this connection
