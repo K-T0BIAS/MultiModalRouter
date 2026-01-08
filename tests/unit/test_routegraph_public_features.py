@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from multimodalrouter import RouteGraph, Hub, Filter, EdgeMetadata
+from multimodalrouter import RouteGraph, Hub, Filter, EdgeMetadata, PathNode
 import os
 import tempfile
 import io
@@ -519,25 +519,30 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertIn('A', reachableIds)
 
     def test_shortest_path_with_path_aware_filter(self):
-        """Test that filter can access and use the current path to limit consecutive segments."""
         testDf = pd.DataFrame(
-            columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
+            columns=[
+                'source',
+                'destination',
+                'distance',
+                'source_lat',
+                'source_lng',
+                'destination_lat',
+                'destination_lng',
+            ],
             data=[
                 ('A', 'B', 1, 1, 1, 1, 2),
                 ('B', 'C', 1, 1, 2, 1, 3),
                 ('C', 'D', 1, 1, 3, 1, 4),
                 ('D', 'E', 1, 1, 4, 1, 5),
                 ('E', 'F', 1, 1, 5, 1, 6),
-                ('A', 'F', 10, 1, 1, 1, 6),  # Direct route is longer
-            ]
+                ('A', 'F', 10, 1, 1, 1, 6),
+            ],
         )
 
         temp_path = os.path.join(self.temp_dir.name, 'temp_path_aware.csv')
         testDf.to_csv(temp_path, index=False)
 
         class PathAwareFilter(Filter):
-            """Filter that limits consecutive segments with the same transport mode."""
-
             def __init__(self, max_consecutive_segments: int = 2):
                 self.max_consecutive_segments = max_consecutive_segments
 
@@ -547,26 +552,27 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             def filterEdge(self, edge: EdgeMetadata) -> bool:
                 return True
 
-            def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, current_path: list = None) -> bool:
-                if current_path is None or len(current_path) == 0:
+            def filter(
+                self,
+                start: Hub,
+                end: Hub,
+                edge: EdgeMetadata,
+                path: PathNode | None,
+            ) -> bool:
+                if path is None:
                     return True
 
                 mode = edge.transportMode
-
-                # count consecutive segments with the same mode
-                consecutive_count = 0
-                for i in range(len(current_path) - 1, -1, -1):
-                    path_mode = current_path[i][1] if len(current_path[i]) > 1 else ""
-                    if path_mode == mode:
-                        consecutive_count += 1
+                consecutive = 0
+                node = path
+                while node is not None:
+                    if node.mode == mode:
+                        consecutive += 1
                     else:
                         break
+                    node = node.prev
 
-                # if more than max consecutive segments, return False
-                if consecutive_count >= self.max_consecutive_segments:
-                    return False
-
-                return True
+                return consecutive < self.max_consecutive_segments
 
         graph = RouteGraph(
             maxDistance=50,
@@ -574,48 +580,49 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             dataPaths={'H': temp_path},
             compressed=False,
             extraMetricsKeys=[],
-            drivingEnabled=False
+            drivingEnabled=False,
         )
 
         f = io.StringIO()
         with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
-        # search route that only ever has two consecutive segments of one mode
         route = graph.find_shortest_path(
             'A',
             'F',
             allowed_modes=['mv'],
-            custom_filter=PathAwareFilter(max_consecutive_segments=2)
+            custom_filter=PathAwareFilter(max_consecutive_segments=2),
         )
         self.assertIsNotNone(route)
-        path = route.path
-        starts = [p[0] for p in path]
-
-        # should take direct route A -> F (10 distance) instead of A -> B -> C (would be 3 segments)
+        starts = [p[0] for p in route.path]
         self.assertEqual(starts, ['A', 'F'])
         self.assertAlmostEqual(route.totalMetrics.getMetric('distance'), 10, places=5)
 
-        # without filter, should take the shorter multi-hop route
         route_no_filter = graph.find_shortest_path('A', 'F', allowed_modes=['mv'])
         self.assertIsNotNone(route_no_filter)
-        path_no_filter = route_no_filter.path
-        starts_no_filter = [p[0] for p in path_no_filter]
-
-        # should be A -> B -> C -> D -> E -> F (5 distance total)
+        starts_no_filter = [p[0] for p in route_no_filter.path]
         self.assertEqual(starts_no_filter, ['A', 'B', 'C', 'D', 'E', 'F'])
-        self.assertAlmostEqual(route_no_filter.totalMetrics.getMetric('distance'), 5, places=5)
+        self.assertAlmostEqual(
+            route_no_filter.totalMetrics.getMetric('distance'), 5, places=5
+        )
 
     def test_shortest_path_with_path_aware_filter_verbose(self):
-        """Test path-aware filter works with verbose mode."""
         testDf = pd.DataFrame(
-            columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
+            columns=[
+                'source',
+                'destination',
+                'distance',
+                'source_lat',
+                'source_lng',
+                'destination_lat',
+                'destination_lng',
+            ],
             data=[
                 ('A', 'B', 1, 1, 1, 1, 2),
                 ('B', 'C', 1, 1, 2, 1, 3),
                 ('C', 'D', 1, 1, 3, 1, 4),
                 ('A', 'D', 5, 1, 1, 1, 4),
-            ]
+            ],
         )
 
         temp_path = os.path.join(self.temp_dir.name, 'temp_path_aware_verbose.csv')
@@ -631,19 +638,25 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             def filterEdge(self, edge: EdgeMetadata) -> bool:
                 return True
 
-            def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, current_path: list = None) -> bool:
-                if current_path is None or len(current_path) == 0:
+            def filter(
+                self,
+                start: Hub,
+                end: Hub,
+                edge: EdgeMetadata,
+                path: PathNode | None,
+            ) -> bool:
+                if path is None:
                     return True
 
                 mode = edge.transportMode
                 consecutive = 0
-                for i in range(len(current_path) - 1, -1, -1):
-                    # Handle both verbose and non-verbose path formats
-                    path_mode = current_path[i][1] if len(current_path[i]) > 1 else ""
-                    if path_mode == mode:
+                node = path
+                while node is not None:
+                    if node.mode == mode:
                         consecutive += 1
                     else:
                         break
+                    node = node.prev
 
                 return consecutive < self.max_consecutive
 
@@ -653,7 +666,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             dataPaths={'H': temp_path},
             compressed=False,
             extraMetricsKeys=[],
-            drivingEnabled=False
+            drivingEnabled=False,
         )
 
         f = io.StringIO()
@@ -665,12 +678,129 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             'D',
             allowed_modes=['mv'],
             verbose=True,
-            custom_filter=PathAwareFilter(max_consecutive=1)
+            custom_filter=PathAwareFilter(max_consecutive=1),
         )
         self.assertIsNotNone(route)
-        path = route.path
-        starts = [p[0] for p in path]
-
-        # max 1 consecutive, forced to take direct route
+        starts = [p[0] for p in route.path]
         self.assertEqual(starts, ['A', 'D'])
         self.assertAlmostEqual(route.totalMetrics.getMetric('distance'), 5, places=5)
+
+    def test_find_shortest_paths_one_to_many(self):
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': self.temp_file_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False,
+        )
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        routes = graph.find_shortest_paths(
+            start_id='A',
+            end_ids=['B', 'D'],
+            allowed_modes=['mv'],
+        )
+
+        self.assertIsInstance(routes, dict)
+        self.assertIn('B', routes)
+        self.assertIn('D', routes)
+
+        route_B = routes['B']
+        route_D = routes['D']
+
+        self.assertEqual([p[0] for p in route_B.path], ['A', 'B'])
+        self.assertEqual([p[0] for p in route_D.path], ['A', 'B', 'D'])
+
+        self.assertAlmostEqual(route_B.totalMetrics.getMetric('distance'), 2)
+        self.assertAlmostEqual(route_D.totalMetrics.getMetric('distance'), 3)
+
+    def test_fully_connect_points(self):
+        testDf = pd.DataFrame(
+            columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
+            data=[
+                ('A', 'B', 1, 0, 0, 1, 0),
+                ('B', 'C', 1, 1, 0, 2, 0),
+                ('C', 'D', 1, 2, 0, 3, 0),
+            ],
+        )
+
+        temp_path = os.path.join(self.temp_dir.name, 'fully_connect.csv')
+        testDf.to_csv(temp_path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': temp_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False,
+        )
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        fc = graph.fully_connect_points(
+            ['A', 'B', 'C'],
+            allowed_modes=['mv'],
+            optimization_metric="distance",
+        )
+
+        self.assertIn('A', fc)
+        self.assertIn('B', fc)
+        self.assertIn('C', fc)
+
+        self.assertIn('C', fc['A'])
+        self.assertEqual([p[0] for p in fc['A']['C'].path], ['A', 'B', 'C'])
+
+        self.assertIn('C', fc['B'])
+        self.assertEqual([p[0] for p in fc['B']['C'].path], ['B', 'C'])
+
+    def test_fully_connect_with_path_filter(self):
+        class MaxDepth(Filter):
+            def filterHub(self, hub):
+                return True
+
+            def filterEdge(self, edge):
+                return True
+
+            def filter(self, start, end, edge, path):
+                depth = 0
+                node = path
+                while node:
+                    depth += 1
+                    node = node.prev
+                return depth < 2
+
+        testDf = pd.DataFrame(
+            columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
+            data=[
+                ('A', 'B', 1, 0, 0, 1, 0),
+                ('B', 'C', 1, 1, 0, 2, 0),
+            ],
+        )
+
+        temp_path = os.path.join(self.temp_dir.name, 'fc_filter.csv')
+        testDf.to_csv(temp_path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': temp_path},
+            compressed=False,
+            extraMetricsKeys=[],
+            drivingEnabled=False,
+        )
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            graph.build()
+
+        fc = graph.fully_connect_points(
+            ['A', 'C'],
+            allowed_modes=['mv'],
+            custom_filter=MaxDepth(),
+        )
+
+        self.assertNotIn('C', fc['A'])
