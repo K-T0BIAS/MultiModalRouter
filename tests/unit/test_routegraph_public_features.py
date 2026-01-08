@@ -537,7 +537,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         class PathAwareFilter(Filter):
             """Filter that limits consecutive segments with the same transport mode."""
-            
+
             def __init__(self, max_consecutive_segments: int = 2):
                 self.max_consecutive_segments = max_consecutive_segments
 
@@ -550,9 +550,9 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, current_path: list = None) -> bool:
                 if current_path is None or len(current_path) == 0:
                     return True
-                
+
                 mode = edge.transportMode
-                
+
                 # count consecutive segments with the same mode
                 consecutive_count = 0
                 for i in range(len(current_path) - 1, -1, -1):
@@ -561,11 +561,11 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
                         consecutive_count += 1
                     else:
                         break
-                
+
                 # if more than max consecutive segments, return False
                 if consecutive_count >= self.max_consecutive_segments:
                     return False
-                
+
                 return True
 
         graph = RouteGraph(
@@ -582,11 +582,16 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             graph.build()
 
         # search route that only ever has two consecutive segments of one mode
-        route = graph.find_shortest_path('A', 'F', allowed_modes=['mv'], custom_filter=PathAwareFilter(max_consecutive_segments=2))
+        route = graph.find_shortest_path(
+            'A',
+            'F',
+            allowed_modes=['mv'],
+            custom_filter=PathAwareFilter(max_consecutive_segments=2)
+        )
         self.assertIsNotNone(route)
         path = route.path
         starts = [p[0] for p in path]
-        
+
         # should take direct route A -> F (10 distance) instead of A -> B -> C (would be 3 segments)
         self.assertEqual(starts, ['A', 'F'])
         self.assertAlmostEqual(route.totalMetrics.getMetric('distance'), 10, places=5)
@@ -596,7 +601,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         self.assertIsNotNone(route_no_filter)
         path_no_filter = route_no_filter.path
         starts_no_filter = [p[0] for p in path_no_filter]
-        
+
         # should be A -> B -> C -> D -> E -> F (5 distance total)
         self.assertEqual(starts_no_filter, ['A', 'B', 'C', 'D', 'E', 'F'])
         self.assertAlmostEqual(route_no_filter.totalMetrics.getMetric('distance'), 5, places=5)
@@ -629,7 +634,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, current_path: list = None) -> bool:
                 if current_path is None or len(current_path) == 0:
                     return True
-                
+
                 mode = edge.transportMode
                 consecutive = 0
                 for i in range(len(current_path) - 1, -1, -1):
@@ -639,7 +644,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
                         consecutive += 1
                     else:
                         break
-                
+
                 return consecutive < self.max_consecutive
 
         graph = RouteGraph(
@@ -655,11 +660,17 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
             graph.build()
 
-        route = graph.find_shortest_path('A', 'D', allowed_modes=['mv'], verbose=True, custom_filter=PathAwareFilter(max_consecutive=1))
+        route = graph.find_shortest_path(
+            'A',
+            'D',
+            allowed_modes=['mv'],
+            verbose=True,
+            custom_filter=PathAwareFilter(max_consecutive=1)
+        )
         self.assertIsNotNone(route)
         path = route.path
         starts = [p[0] for p in path]
-        
+
         # max 1 consecutive, forced to take direct route
         self.assertEqual(starts, ['A', 'D'])
         self.assertAlmostEqual(route.totalMetrics.getMetric('distance'), 5, places=5)
