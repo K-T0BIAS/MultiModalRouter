@@ -449,7 +449,7 @@ class RouteGraph:
 
         if allowed_modes is None:
             allowed_modes = list(self.TransportModes.values())
-            if self.drivingEnabled: 
+            if self.drivingEnabled:
                 allowed_modes.append("driving")
 
         while pq:
