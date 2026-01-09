@@ -802,3 +802,216 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         )
 
         self.assertNotIn('C', fc['A'])
+
+    def test_lexicographic_hops_beats_long_chain(self):
+        """
+        Test that minimal hops beats minimal distance
+        in lexiographical order (hops, distance).
+        """
+        rows = []
+
+        # A -> B -> C -> ... -> J (9 hops, distance 1 each)
+        nodes = [chr(ord('A') + i) for i in range(10)]
+        for i in range(len(nodes) - 1):
+            rows.append((nodes[i], nodes[i + 1], 1, i, 0, i + 1, 0))
+
+        # Direct A -> J (1 hop, distance 20)
+        rows.append(('A', 'J', 20, 0, 0, 9, 0))
+
+        testDf = pd.DataFrame(
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+            data=rows,
+        )
+
+        path = os.path.join(self.temp_dir.name, 'deep_chain.csv')
+        testDf.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=100,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        route = graph.find_shortest_path(
+            'A',
+            'J',
+            allowed_modes=['mv'],
+            optimization_metric=['hops', 'distance'],
+            verbose=True,
+        )
+        # shows that minimal hops beat minimal distance
+        path_nodes = [n[0] for n in route.path]
+        self.assertEqual(path_nodes, ['A', 'J'])
+
+    def test_lexicographic_grid_prefers_straight_path(self):
+        """
+        Test lexicographic grid prefers least hops path
+        """
+        rows = []
+        size = 4  # 4x4 grid
+
+        def node(x, y):
+            return f"N{x}{y}"
+
+        for x in range(size):
+            for y in range(size):
+                if x + 1 < size:
+                    rows.append((node(x, y), node(x + 1, y), 1, x, y, x + 1, y))
+                if y + 1 < size:
+                    rows.append((node(x, y), node(x, y + 1), 1, x, y, x, y + 1))
+
+        testDf = pd.DataFrame(
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+            data=rows,
+        )
+
+        path = os.path.join(self.temp_dir.name, 'grid.csv')
+        testDf.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=10,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        start = node(0, 0)
+        end = node(3, 3)
+
+        route = graph.find_shortest_path(
+            start,
+            end,
+            allowed_modes=['mv'],
+            optimization_metric=['hops', 'distance'],
+            verbose=True,
+        )
+
+        # Manhattan shortest hops = 6
+        self.assertEqual(len(route.path) - 1, 6)
+
+    def test_lexicographic_diamond_fanin(self):
+        """
+        stress test for lexicographic with many paths.
+        check leats hop truth and path backtracking
+        """
+        rows = []
+
+        # A -> B_i -> C
+        for i in range(10):
+            rows.append(('A', f'B{i}', 1, 0, 0, i, 1))
+            rows.append((f'B{i}', 'C', 1, i, 1, 0, 2))
+
+        # Direct A -> C
+        rows.append(('A', 'C', 10, 0, 0, 0, 2))
+
+        testDf = pd.DataFrame(
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+            data=rows,
+        )
+
+        path = os.path.join(self.temp_dir.name, 'diamond.csv')
+        testDf.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=50,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        route = graph.find_shortest_path(
+            'A',
+            'C',
+            allowed_modes=['mv'],
+            optimization_metric=['hops', 'distance'],
+            verbose=True,
+        )
+
+        # hops-first chooses direct edge
+        self.assertEqual([n[0] for n in route.path], ['A', 'C'])
+
+    def test_lexicographic_hops_with_depth_filter(self):
+        """
+        checks that filters run as expected
+        (not that filters are correct since least hops will win before filter)
+        """
+        class MaxDepthFilter(Filter):
+            def filterHub(self, hub):
+                return True
+
+            def filterEdge(self, edge):
+                return True
+
+            def filter(self, start, end, edge, path):
+                # no paths longer than 3 hops
+                return sum(1 for _ in path) <= 3
+
+        rows = []
+
+        # cheap chain A -> B -> C -> ... -> K (10 hops, distance 1)
+        chain = [chr(ord('A') + i) for i in range(11)]
+        for i in range(len(chain) - 1):
+            rows.append((chain[i], chain[i + 1], 1, i, 0, i + 1, 0))
+
+        # medium path A -> M -> N -> K (3 hops, distance 5)
+        rows.extend([
+            ('A', 'M', 2, 0, 0, 5, 1),
+            ('M', 'N', 1, 5, 1, 7, 1),
+            ('N', 'K', 2, 7, 1, 10, 0),
+        ])
+
+        # direct path A -> K (1 hop, distance 20)
+        rows.append(('A', 'K', 20, 0, 0, 10, 0))
+
+        testDf = pd.DataFrame(
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+            data=rows,
+        )
+
+        path = os.path.join(self.temp_dir.name, 'lexi_filter_large.csv')
+        testDf.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=100,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        route = graph.find_shortest_path(
+            start_id='A',
+            end_id='K',
+            allowed_modes=['mv'],
+            optimization_metric=['hops', 'distance'],
+            custom_filter=MaxDepthFilter(),
+            verbose=True,
+        )
+
+        # long chain is rejected by filter; direct path wins lexicographically
+        path_nodes = [n[0] for n in route.path]
+        self.assertEqual(path_nodes, ['A', 'K'])

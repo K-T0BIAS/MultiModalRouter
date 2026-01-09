@@ -134,7 +134,7 @@ def find_shortest_path(
     start_id: str, 
     end_id: str, 
     allowed_modes: list[str],
-    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    optimization_metric: OptimizationMetric | str | tuple = OptimizationMetric.DISTANCE,
     max_segments: int = 10,
     verbose: bool = False
     ) -> Route | None:
@@ -145,7 +145,8 @@ def find_shortest_path(
 - start_id: str = the Hub.id of the starting hub (e.g. the source field for this hub in your data -> for `airports` likely the iata code) (for coordinate searches see [here](#searching-with-coordinates))
 - end_id: str = the Hub.id of the traget Hub
 - allowed_modes: list[str] = a list of transport modes that are allowed in the path (all edges with different modes are excluded)(The modes are set during the graph [initailization](#args))
-- optimization_metric: str = the metric by which the pathfinder will determine the length of the path (must be numeric and present in all searched edges) (default = `distance`) (metrics where also set during [initialization](#args))
+- optimization_metric: str | tuple = the metric by which the pathfinder will determine the length of the path (must be numeric and present in all searched edges) (default = `distance`) (metrics where also set during [initialization](#args))
+if a `tuple | list` is passed it will minimize based on order. The soultion is `not` the total minimum but rather the minimum of the first metric and then the minimum of the the second within the new search space and so on. [`pass 'hops' as an internall metric to minimize the hops` -> optimization_metric=('hops', ...)]
 - max_segments: int = the maximum number of hubs the route is allowed to include (default = 10 to avoid massive searches but should be setvrealtive to the graph size and density)
 - verbose: bool = whether you want to store all edges and their data in the route or just the hub names (default=False)
 
@@ -161,7 +162,7 @@ def find_shortest_paths(
     start_id: str,
     end_ids: list[str],
     allowed_modes: list[str] | None = None,
-    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    optimization_metric: OptimizationMetric | str | tuple = OptimizationMetric.DISTANCE,
     max_segments: int = 10,
     verbose: bool = False,
     custom_filter: Filter | None = None,
@@ -173,7 +174,7 @@ def find_shortest_paths(
 - start_id: str = the id of the start point for all routes
 - end_ids: list[str] = a list of all the target ids for the search (will find a sepperate route from start to every target)
 - allowed_modes: list[str] = list of allowed transport Modes (pass `None` to allow all)
-- optimization_metric: str | OptimizationMetric = the cost factor that the router will minimize
+- optimization_metric: str | OptimizationMetric | tuple = the cost factor that the router will minimize (if tuple this will do a lexiographical search that minimizes the metrics in order not sum)
 - max_segments: int = the search depth (routes with more than n segments are not explored)
 - verbose: bool = whether to return verbose routes or not
 - custom_filter: Filter | None = Filter to add custom restrictions to routing
