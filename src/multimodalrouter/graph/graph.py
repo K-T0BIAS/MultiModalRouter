@@ -447,6 +447,11 @@ class RouteGraph:
         # best result per target
         results: dict[str, tuple[PathNode, EdgeMetadata, tuple]] = {}
 
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
+            if self.drivingEnabled:
+                allowed_modes.append("driving")
+
         while pq:
             priority, _, path_node, acc_metrics = heapq.heappop(pq)
             hub_id = path_node.hub_id
