@@ -6,6 +6,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from abc import abstractmethod, ABC
+from typing import Iterable, Optional
 
 
 class OptimizationMetric(Enum):
@@ -167,6 +168,26 @@ class VerboseRoute(Route):
     path: list[tuple[str, str, EdgeMetadata]]
 
 
+@dataclass(frozen=True)
+class PathNode:
+    hub_id: str
+    mode: str
+    edge: EdgeMetadata
+    prev: Optional["PathNode"]
+
+    @property
+    def length(self) -> int:
+        return 0 if self.prev is None else self.prev.length + 1
+
+    def __iter__(self) -> Iterable["PathNode"]:
+        node = self
+        stack = []
+        while node:
+            stack.append(node)
+            node = node.prev
+        yield from reversed(stack)
+
+
 class Filter(ABC):
 
     @abstractmethod
@@ -195,5 +216,5 @@ class Filter(ABC):
         """
         pass
 
-    def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, current_path: list = None) -> bool:
+    def filter(self, start: Hub, end: Hub, edge: EdgeMetadata, path: PathNode | None = None) -> bool:
         return self.filterHub(start) and self.filterHub(end) and self.filterEdge(edge)

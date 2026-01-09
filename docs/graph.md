@@ -2,9 +2,13 @@
 
 [graph](#routegraph)
 
+- [init](#initialization)
+- [path finding / routing](#routing--finding-the-shortest-path-form-a-to-b)
+
 - [advanced options](#advanced-options)
     - [custom distance metrics](#swap-distance-method)
     - [higher dimensional graphs](#higher-dimensional-graphs)
+    - [Search Filters](#custom-filters-in-searches)
 
 [dataclasses](#dataclasses)
 
@@ -14,6 +18,7 @@
 
 [Route](#route)
 
+[Filters](#filter)
 # RouteGraph
 
 The `RouteGraph` is the central class of the package implemented as a dynamic (cyclic) directed graph. It defines all graph building and routing related functions.
@@ -146,6 +151,37 @@ def find_shortest_path(
 
 **returns** : [Route](#route) or None if no route was found
 
+---
+
+### routing / finding the shortest path with multiple targets
+
+```python
+def find_shortest_paths(
+    self,
+    start_id: str,
+    end_ids: list[str],
+    allowed_modes: list[str] | None = None,
+    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    max_segments: int = 10,
+    verbose: bool = False,
+    custom_filter: Filter | None = None,
+) -> dict[str, Route | VerboseRoute]:
+```
+
+#### args:
+
+- start_id: str = the id of the start point for all routes
+- end_ids: list[str] = a list of all the target ids for the search (will find a sepperate route from start to every target)
+- allowed_modes: list[str] = list of allowed transport Modes (pass `None` to allow all)
+- optimization_metric: str | OptimizationMetric = the cost factor that the router will minimize
+- max_segments: int = the search depth (routes with more than n segments are not explored)
+- verbose: bool = whether to return verbose routes or not
+- custom_filter: Filter | None = Filter to add custom restrictions to routing
+
+**returns** : dict[str, Route | VerboseRoute] = a dict where the key is the target_id and the value is the route to that id
+
+
+---
 ### radial search /finding all hubs inside a radius
 
 > Note: this doesn't search a direct radius but rather a reachablity distance (e.g.: A and B may have a distance $x \leq r$, but the shortest connecting path has distance $y \geq r$)
@@ -384,54 +420,6 @@ nDimGraph = RouteGraph(
 
 > It is theoretically possible to combine hubs from differnt dimensions as long as a distance metric is given or the distance is pre calculated
 
-#### custom filters in searches
-
-To add custom rulesets to searches like [`find_shortest_path`](#routing--finding-the-shortest-path-form-a-to-b) you can add your own [`Filter`](#filter) objects
-
-#### example
-
-Imagine one of your datasets has the following keys
-
-```csv
-source, destination, distance, cost, sx, sy, dx, dy, namex, namey
-```
-
-You have now build your graph with the extra keys: `cost`, `namex`,`namey`, and you want to start a shortest path search that excludes edges where `cost` > `C` and the where the destination `namey` = `N`. Additionally you want to exclude a list of `hub Ids` = `I`
-
-**create Filter:**
-
-```python
-from multimodalrouter import Filter
-
-class CustomFilter(Filter):
-
-    def __init__(self, C: float, N: str, I: list[str]):
-        self.C = C
-        self.N = N
-        self.I = I
-
-    def filterHub(self, hub: Hub):
-        return hub.id not in self.I
-
-    def filterEdge(self, edge: EdgeMetadata):
-        return (edge.getMetric('cost') < self.C 
-                and egde-getMetric('namey') != self.N
-               )
-```
-
-**use filter**
-
-```python
-# graph creation code here
-
-route = graph.find_shortest_path(
-    **kwargs,
-    custom_filter=CustomFilter(c, n, i) # your filter instance
-)
-```
----
----
----
 
 ## Dataclasses
 
@@ -594,6 +582,8 @@ def asGraph(self, graph):
 
 **NOTES** if the given graph is missing some hubs from the route the created graph will skip the missing hubs and include new edges to connect the present hubs. (The new edges will only include the `distance` metric, which is calculated by the passed graph's distance function)
 
+---
+---
 ### Filter 
 
 The `Filter` class is an abstract class you can implement to add custom filter to you searches
@@ -632,6 +622,104 @@ def filterHub(self, hub: Hub) -> bool:
 
 will let any hub pass through the filter
 
+
+#### custom filters in searches
+
+To add custom rulesets to searches like [`find_shortest_path`](#routing--finding-the-shortest-path-form-a-to-b) you can add your own [`Filter`](#filter) objects
+
+#### example
+
+Imagine one of your datasets has the following keys
+
+```csv
+source, destination, distance, cost, sx, sy, dx, dy, namex, namey
+```
+
+You have now build your graph with the extra keys: `cost`, `namex`,`namey`, and you want to start a shortest path search that excludes edges where `cost` > `C` and the where the destination `namey` = `N`. Additionally you want to exclude a list of `hub Ids` = `I`
+
+**create Filter:**
+
+```python
+from multimodalrouter import Filter
+
+class CustomFilter(Filter):
+
+    def __init__(self, C: float, N: str, I: list[str]):
+        self.C = C
+        self.N = N
+        self.I = I
+
+    def filterHub(self, hub: Hub):
+        return hub.id not in self.I
+
+    def filterEdge(self, edge: EdgeMetadata):
+        return (edge.getMetric('cost') < self.C 
+                and egde-getMetric('name') != self.N
+               )
+```
+
+**use filter**
+
+```python
+# graph creation code here
+
+route = graph.find_shortest_path(
+    **kwargs,
+    custom_filter=CustomFilter(c, n, i) # your filter instance
+)
+```
+
+#### create filter for path inspection
+
+Filters can also inspect the current path. This enables you to add restrictions to the path topology.
+
+To add filter behaviour you can override the `filter()` method.
+
+```python
+from multimodalrouter import Filter
+
+class CustomFilter(Filter):
+
+    def filterHub(self, hub: Hub): return True
+
+    def filterEdge(self, edge: EdgeMetadata): return True
+
+    def filter(
+        self,
+        start: Hub,
+        end: Hub,
+        edge: EdgeMetadata, 
+        path: PathNode | None = None
+    ) -> bool:
+        """
+        filters routes that 
+        have 10 consecutive legs with the same type
+        """
+        # declare vars
+        N = 10
+        n = 0
+        target = "a"
+        if target != edge.transportMode: return True
+        # iter over the path
+        for node in path:
+            if target != node.edge.transportMode: break
+            n += 1
+        return n <= N
+```
+
+**use filter**
+
+```python
+# graph creation code here
+
+route = graph.find_shortest_path(
+    **kwargs,
+    custom_filter=CustomFilter() # your filter instance
+)
+```
+---
+---
+---
 
 
 

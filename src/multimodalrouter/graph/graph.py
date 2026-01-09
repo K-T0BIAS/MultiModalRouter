@@ -9,7 +9,7 @@ import dill
 import heapq
 import os
 import pandas as pd
-from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute
+from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute, PathNode
 from threading import Lock
 from collections import deque
 
@@ -340,6 +340,131 @@ class RouteGraph:
 
         return distances.cpu().numpy()
 
+    def _dijkstra_single_source(
+        self,
+        start_id: str,
+        target_ids: set[str],
+        allowed_modes: list[str],
+        optimization_metric: OptimizationMetric,
+        max_segments: int,
+        custom_filter: Filter | None,
+    ):
+
+        pq: list[tuple[float, str, PathNode, EdgeMetadata]] = []
+
+        start_metrics = EdgeMetadata()
+        start_path = PathNode(
+            hub_id=start_id,
+            mode="",
+            edge=EdgeMetadata(),
+            prev=None,
+        )
+
+        heapq.heappush(pq, (0.0, start_id, start_path, start_metrics))
+
+        # visited[(hub_id, path_len)] = best_metric
+        visited: dict[tuple[str, int], float] = {}
+
+        # best result per target
+        results: dict[str, tuple[PathNode, EdgeMetadata]] = {}
+
+        while pq:
+            current_metric, hub_id, path_node, acc_metrics = heapq.heappop(pq)
+
+            path_len = path_node.length if path_node is not None else 0
+            state = (hub_id, path_len)
+
+            if state in visited and visited[state] <= current_metric:
+                continue
+            visited[state] = current_metric
+
+            # record result if this hub is a target
+            if hub_id in target_ids:
+                prev = results.get(hub_id)
+                if prev is None or current_metric < prev[1].getMetric(optimization_metric):
+                    results[hub_id] = (path_node, acc_metrics)
+
+            if path_len >= max_segments:
+                continue
+
+            current_hub = self.getHubById(hub_id)
+            if current_hub is None:
+                continue
+
+            for mode in allowed_modes:
+                if mode not in current_hub.outgoing:
+                    continue
+
+                for next_hub_id, conn_metrics in current_hub.outgoing[mode].items():
+                    if conn_metrics is None:
+                        continue
+
+                    next_hub = self.getHubById(next_hub_id)
+                    if next_hub is None:
+                        continue
+
+                    if custom_filter is not None:
+                        if not custom_filter.filter(
+                            current_hub,
+                            next_hub,
+                            conn_metrics,
+                            path_node,
+                        ):
+                            continue
+
+                    edge_cost = conn_metrics.getMetric(optimization_metric)
+                    new_metric = current_metric + edge_cost
+
+                    new_acc_metrics = EdgeMetadata(
+                        transportMode=None,
+                        **acc_metrics.metrics,
+                    )
+                    for k, v in conn_metrics.metrics.items():
+                        if isinstance(v, (int, float)):
+                            new_acc_metrics.metrics[k] = (
+                                new_acc_metrics.metrics.get(k, 0) + v
+                            )
+                        else:
+                            new_acc_metrics.metrics[k] = v
+
+                    new_path_node = PathNode(
+                        hub_id=next_hub_id,
+                        mode=mode,
+                        edge=conn_metrics,
+                        prev=path_node,
+                    )
+
+                    heapq.heappush(
+                        pq,
+                        (new_metric, next_hub_id, new_path_node, new_acc_metrics),
+                    )
+
+        return results
+
+    def _build_route(
+        self,
+        path_node: PathNode,
+        acc_metrics: EdgeMetadata,
+        optimization_metric: OptimizationMetric,
+        verbose: bool,
+    ) -> Route:
+        if verbose:
+            path = [
+                (n.hub_id, n.mode, n.edge)
+                for n in path_node
+            ]
+        else:
+            path = [
+                (n.hub_id, n.mode)
+                for n in path_node
+            ]
+
+        return Route(
+            path=path,
+            totalMetrics=acc_metrics,
+            optimizedMetric=optimization_metric,
+        )
+
     # ============= public key functions =============
 
     def build(self):
@@ -376,140 +501,77 @@ class RouteGraph:
         self,
         start_id: str,
         end_id: str,
-        allowed_modes: list[str] = None,
+        allowed_modes: list[str] | None = None,
         optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
         max_segments: int = 10,
         verbose: bool = False,
-        custom_filter: Filter = None,
+        custom_filter: Filter | None = None,
     ) -> Route | VerboseRoute | None:
-        """
-        Find the optimal path between two hubs using Dijkstra
+        if not isinstance(end_id, str):
+            raise TypeError("end_id must be a single hub id (str)")
 
-        Args:
-            start_id: ID of the starting hub
-            end_id: ID of the destination hub
-            optimization_metric: Metric to optimize for (distance, time, cost, etc.) (must exist in EdgeMetadata)
-            allowed_modes: List of allowed transport modes (default: all modes)
-            max_segments: Maximum number of segments allowed in route
+        results = self._dijkstra_single_source(
+            start_id=start_id,
+            target_ids={end_id},
+            allowed_modes=allowed_modes,
+            optimization_metric=optimization_metric,
+            max_segments=max_segments,
+            custom_filter=custom_filter,
+        )
 
-        Returns:
-            Route object with the optimal path, or None if no path exists
-        """
+        if end_id not in results:
+            return None
 
-        # check if start and end hub exist
-        start_hub = self.getHubById(start_id)
-        end_hub = self.getHubById(end_id)
+        path_node, acc_metrics = results[end_id]
+        return self._build_route(
+            path_node,
+            acc_metrics,
+            optimization_metric,
+            verbose,
+        )
 
-        if start_hub is None:
-            raise ValueError(f"Start hub '{start_id}' not found in graph")
-        if end_hub is None:
-            raise ValueError(f"End hub '{end_id}' not found in graph")
+    def find_shortest_paths(
+        self,
+        start_id: str,
+        end_ids: list[str],
+        allowed_modes: list[str] | None = None,
+        optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+        max_segments: int = 10,
+        verbose: bool = False,
+        custom_filter: Filter | None = None,
+    ) -> dict[str, Route | VerboseRoute]:
+        if not end_ids:
+            return {}
 
-        if allowed_modes is None:
-            allowed_modes = list(self.TransportModes.values())
-            if self.drivingEnabled:
-                allowed_modes.append("car")
+        target_ids = set(end_ids)
 
-        if start_id == end_id:
-            # create a route with only the start hub
-            # no verbose since no edges are needed
-            return Route(
-                path=[(start_id, "")],
-                totalMetrics=EdgeMetadata(),
-                optimizedMetric=optimization_metric,
+        results = self._dijkstra_single_source(
+            start_id=start_id,
+            target_ids=target_ids,
+            allowed_modes=allowed_modes,
+            optimization_metric=optimization_metric,
+            max_segments=max_segments,
+            custom_filter=custom_filter,
+        )
+
+        routes: dict[str, Route | VerboseRoute] = {}
+
+        for dst, (path_node, acc_metrics) in results.items():
+            routes[dst] = self._build_route(
+                path_node,
+                acc_metrics,
+                optimization_metric,
+                verbose,
             )
 
-        if verbose:
-            # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
-            pq = [(0.0, start_id, [(start_id, "", EdgeMetadata())], EdgeMetadata())]
-        else:
-            # priority queue: (metric_value, hub_id, path_with_modes, accumulated_metrics)
-            pq = [(0.0, start_id, [(start_id, "")], EdgeMetadata())]
+        return routes
 
-        visited = {} # dict like {hub_id : metric_value}
-
-        while pq:
-            # get the current path data
-            # optim metric,         hub id,       path with modes, accumulated metrics (edgeMetadata object)
-            current_metric_value, current_hub_id, path_with_modes, accumulated_metrics = heapq.heappop(pq)
-
-            # skip this if a better path exists
-            if current_hub_id in visited and visited[current_hub_id] <= current_metric_value:
-                continue
-            # mark as visited
-            visited[current_hub_id] = current_metric_value
-
-            # check if this is the end hub
-            if current_hub_id == end_id:
-                if verbose:
-                    return Route(
-                        path=path_with_modes,
-                        totalMetrics=accumulated_metrics,
-                        optimizedMetric=optimization_metric,
-                    )
-
-                return Route(
-                    path=path_with_modes,
-                    totalMetrics=accumulated_metrics,
-                    optimizedMetric=optimization_metric,
-                )
-
-            # skip if too many segments
-            if len(path_with_modes) > max_segments:
-                continue
-
-            # get the current hub
-            current_hub = self.getHubById(current_hub_id)
-            if current_hub is None:
-                continue
-
-            # test all outgoing connections from the current hub
-            for mode in allowed_modes: # iter over the allowed transport modes
-                if mode in current_hub.outgoing: # check if the mode has outgoing connections
-                    # iter over all outgoing links with the selected transport type
-                    for next_hub_id, connection_metrics in current_hub.outgoing[mode].items():
-                        if connection_metrics is None: # skip if the connection has no metrics
-                            continue
-
-                        try:
-                            next_hub = self.getHubById(next_hub_id)
-                        except KeyError:
-                            raise ValueError(
-                                f"Hub with ID '{next_hub_id}' not found in graph! But it is connected to hub '{current_hub_id}' via mode '{mode}'." # noqa: E501
-                            )
-                        if (
-                            custom_filter is not None and
-                            not custom_filter.filter(current_hub, next_hub, connection_metrics, path_with_modes)
-                        ):
-                            continue
-
-                        # get the selected metric alue for this connection
-                        connection_value = connection_metrics.getMetric(optimization_metric)
-                        new_metric_value = current_metric_value + connection_value
-
-                        # skip if a better hub to get here exists
-                        if next_hub_id in visited and visited[next_hub_id] <= new_metric_value:
-                            continue
-
-                        # create a new edge obj for the combined metrics  |  None bc modes my change between edges
-                        new_accumulated_metrics = EdgeMetadata(transportMode=None, **accumulated_metrics.metrics)
-                        # accumulate metrics
-                        for metric_name, metric_value in connection_metrics.metrics.items():
-                            if isinstance(metric_value, (int, float)):
-                                new_accumulated_metrics.metrics[metric_name] = new_accumulated_metrics.metrics.get(metric_name, 0) + metric_value # noqa: E501
-                            else:
-                                # ignore non-numeric metrics for accumulation (maybe combine strings here)
-                                new_accumulated_metrics.metrics[metric_name] = metric_value
-
-                        # combine to form a new path
-                        if verbose:
-                            new_path = path_with_modes + [(next_hub_id, mode, connection_metrics)]
-                        else:
-                            new_path = path_with_modes + [(next_hub_id, mode)]
-                        # push to the priority queue for future exploration
-                        heapq.heappush(pq, (new_metric_value, next_hub_id, new_path, new_accumulated_metrics))
-
-        return None
+    def fully_connect_points(self, point_ids: list[str], **kwargs):
+        graph = {}
+        for start in point_ids:
+            targets = [p for p in point_ids if p != start]
+            graph[start] = self.find_shortest_paths(start, targets, **kwargs)
+        return graph
 
     def radial_search(
         self,
