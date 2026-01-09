@@ -2,6 +2,9 @@
 
 [graph](#routegraph)
 
+- [init](#initialization)
+- [path finding / routing](#routing--finding-the-shortest-path-form-a-to-b)
+
 - [advanced options](#advanced-options)
     - [custom distance metrics](#swap-distance-method)
     - [higher dimensional graphs](#higher-dimensional-graphs)
@@ -148,6 +151,37 @@ def find_shortest_path(
 
 **returns** : [Route](#route) or None if no route was found
 
+---
+
+### routing / finding the shortest path with multiple targets
+
+```python
+def find_shortest_paths(
+    self,
+    start_id: str,
+    end_ids: list[str],
+    allowed_modes: list[str] | None = None,
+    optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+    max_segments: int = 10,
+    verbose: bool = False,
+    custom_filter: Filter | None = None,
+) -> dict[str, Route | VerboseRoute]:
+```
+
+#### args:
+
+- start_id: str = the id of the start point for all routes
+- end_ids: list[str] = a list of all the target ids for the search (will find a sepperate route from start to every target)
+- allowed_modes: list[str] = list of allowed transport Modes (pass `None` to allow all)
+- optimization_metric: str | OptimizationMetric = the cost factor that the router will minimize
+- max_segments: int = the search depth (routes with more than n segments are not explored)
+- verbose: bool = whether to return verbose routes or not
+- custom_filter: Filter | None = Filter to add custom restrictions to routing
+
+**returns** : dict[str, Route | VerboseRoute] = a dict where the key is the target_id and the value is the route to that id
+
+
+---
 ### radial search /finding all hubs inside a radius
 
 > Note: this doesn't search a direct radius but rather a reachablity distance (e.g.: A and B may have a distance $x \leq r$, but the shortest connecting path has distance $y \geq r$)
