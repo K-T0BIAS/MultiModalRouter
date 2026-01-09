@@ -12,6 +12,7 @@ import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute, PathNode
 from threading import Lock
 from collections import deque
+from itertools import count
 
 
 class RouteGraph:
@@ -349,8 +350,8 @@ class RouteGraph:
         max_segments: int,
         custom_filter: Filter | None,
     ):
-
-        pq: list[tuple[float, str, PathNode, EdgeMetadata]] = []
+        counter = count()
+        pq: list[tuple[float, int, PathNode, EdgeMetadata]] = []
 
         start_metrics = EdgeMetadata()
         start_path = PathNode(
@@ -360,7 +361,7 @@ class RouteGraph:
             prev=None,
         )
 
-        heapq.heappush(pq, (0.0, start_id, start_path, start_metrics))
+        heapq.heappush(pq, (0.0, next(counter), start_path, start_metrics))
 
         # visited[(hub_id, path_len)] = best_metric
         visited: dict[tuple[str, int], float] = {}
@@ -369,8 +370,8 @@ class RouteGraph:
         results: dict[str, tuple[PathNode, EdgeMetadata]] = {}
 
         while pq:
-            current_metric, hub_id, path_node, acc_metrics = heapq.heappop(pq)
-
+            current_metric, _, path_node, acc_metrics = heapq.heappop(pq)
+            hub_id = path_node.hub_id
             path_len = path_node.length if path_node is not None else 0
             state = (hub_id, path_len)
 
@@ -436,7 +437,7 @@ class RouteGraph:
 
                     heapq.heappush(
                         pq,
-                        (new_metric, next_hub_id, new_path_node, new_acc_metrics),
+                        (new_metric, next(counter), new_path_node, new_acc_metrics),
                     )
 
         return results
