@@ -341,19 +341,96 @@ class RouteGraph:
 
         return distances.cpu().numpy()
 
+    def _primary_metric(self, optimization_metric):
+        """
+        If optimization_metric is a tuple, return the last element of the tuple.
+        Otherwise, return optimization_metric itself.
+
+        Args:
+            optimization_metric (OptimizationMetric | str | tuple): The optimization metric to get the primary metric from.
+
+        Returns:
+            OptimizationMetric | str: The primary optimization metric.
+        """
+        if isinstance(optimization_metric, tuple):
+            return optimization_metric[-1]
+        return optimization_metric
+
+    def _build_priority_spec(
+        self,
+        optimization_metric: OptimizationMetric | str | tuple,
+    ):
+        """
+        preprocesses the optim metric request into the expected tuple format for _dijkstra_single_source
+
+        :param optimization_metric: the target metrics (in order of importance) or a single metric
+        :type optimization_metric: OptimizationMetric | str | tuple
+        """
+        # ensure backwards compatibility with single metric optim
+        if isinstance(optimization_metric, (OptimizationMetric, str)):
+            return (optimization_metric,)
+
+        # already correct type
+        if isinstance(optimization_metric, tuple):
+            return optimization_metric
+
+        # list
+        if isinstance(optimization_metric, list):
+            return tuple(optimization_metric)
+
+        raise TypeError("Invalid optimization_metric")
+
+    def _compute_priority(
+        self,
+        path: PathNode,
+        acc_metrics: EdgeMetadata,
+        priority_spec: tuple,
+    ):
+        """
+        collects the values from the current state,
+        based on the optim metrics requested
+
+        :param path: the last node i the current path (has prev)
+        :type path: PathNode
+        :param acc_metrics: the accumulated metrics
+        :type acc_metrics: EdgeMetadata
+        :param priority_spec: the optim metrics (in order of importance)
+        :type priority_spec: tuple
+        """
+        values = []
+
+        for key in priority_spec:
+            if key == "hops":
+                values.append(path.length)
+            else:
+                values.append(acc_metrics.getMetric(key))
+
+        return tuple(values)
+
     def _dijkstra_single_source(
         self,
         start_id: str,
         target_ids: set[str],
         allowed_modes: list[str],
-        optimization_metric: OptimizationMetric,
+        optimization_metric: OptimizationMetric | tuple,
         max_segments: int,
         custom_filter: Filter | None,
     ):
         counter = count()
-        pq: list[tuple[float, int, PathNode, EdgeMetadata]] = []
 
-        start_metrics = EdgeMetadata()
+        priority_spec = self._build_priority_spec(optimization_metric)
+
+        pq: list[tuple[tuple, int, PathNode, EdgeMetadata]] = []
+
+        start_metrics = EdgeMetadata(
+            transportMode=None,
+            **{
+                (m if isinstance(m, str) else m.value): 0
+                for m in priority_spec
+                if m != "hops"
+            }
+        )
+
         start_path = PathNode(
             hub_id=start_id,
             mode="",
@@ -361,29 +438,30 @@ class RouteGraph:
             prev=None,
         )
 
-        heapq.heappush(pq, (0.0, next(counter), start_path, start_metrics))
+        start_priority = self._compute_priority(start_path, start_metrics, priority_spec)
+        heapq.heappush(pq, (start_priority, next(counter), start_path, start_metrics))
 
-        # visited[(hub_id, path_len)] = best_metric
-        visited: dict[tuple[str, int], float] = {}
+        # best lexicographic priority seen per hub
+        visited: dict[str, tuple] = {}
 
         # best result per target
-        results: dict[str, tuple[PathNode, EdgeMetadata]] = {}
+        results: dict[str, tuple[PathNode, EdgeMetadata, tuple]] = {}
 
         while pq:
-            current_metric, _, path_node, acc_metrics = heapq.heappop(pq)
+            priority, _, path_node, acc_metrics = heapq.heappop(pq)
             hub_id = path_node.hub_id
-            path_len = path_node.length if path_node is not None else 0
-            state = (hub_id, path_len)
+            path_len = path_node.length
 
-            if state in visited and visited[state] <= current_metric:
+            prev_priority = visited.get(hub_id)
+            if prev_priority is not None and prev_priority <= priority:
                 continue
-            visited[state] = current_metric
+            visited[hub_id] = priority
 
             # record result if this hub is a target
             if hub_id in target_ids:
                 prev = results.get(hub_id)
-                if prev is None or current_metric < prev[1].getMetric(optimization_metric):
-                    results[hub_id] = (path_node, acc_metrics)
+                if prev is None or priority < prev[2]:
+                    results[hub_id] = (path_node, acc_metrics, priority)
 
             if path_len >= max_segments:
                 continue
@@ -413,9 +491,6 @@ class RouteGraph:
                         ):
                             continue
 
-                    edge_cost = conn_metrics.getMetric(optimization_metric)
-                    new_metric = current_metric + edge_cost
-
                     new_acc_metrics = EdgeMetadata(
                         transportMode=None,
                         **acc_metrics.metrics,
@@ -435,12 +510,15 @@ class RouteGraph:
                         prev=path_node,
                     )
 
+                    new_priority = self._compute_priority(new_path_node, new_acc_metrics, priority_spec)
+
                     heapq.heappush(
                         pq,
-                        (new_metric, next(counter), new_path_node, new_acc_metrics),
+                        (new_priority, next(counter), new_path_node, new_acc_metrics),
                     )
 
-        return results
+        # strip priority from results (external behavior unchanged)
+        return {k: (v[0], v[1]) for k, v in results.items()}
 
     def _build_route(
         self,
@@ -503,13 +581,16 @@ class RouteGraph:
         start_id: str,
         end_id: str,
         allowed_modes: list[str] | None = None,
-        optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+        optimization_metric: OptimizationMetric | str | tuple = OptimizationMetric.DISTANCE,
         max_segments: int = 10,
         verbose: bool = False,
         custom_filter: Filter | None = None,
     ) -> Route | VerboseRoute | None:
         if not isinstance(end_id, str):
             raise TypeError("end_id must be a single hub id (str)")
+
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
 
         results = self._dijkstra_single_source(
             start_id=start_id,
@@ -524,10 +605,11 @@ class RouteGraph:
             return None
 
         path_node, acc_metrics = results[end_id]
+
         return self._build_route(
             path_node,
             acc_metrics,
-            optimization_metric,
+            self._primary_metric(optimization_metric),
             verbose,
         )
 
@@ -536,13 +618,16 @@ class RouteGraph:
         start_id: str,
         end_ids: list[str],
         allowed_modes: list[str] | None = None,
-        optimization_metric: OptimizationMetric | str = OptimizationMetric.DISTANCE,
+        optimization_metric: OptimizationMetric | str | tuple = OptimizationMetric.DISTANCE,
         max_segments: int = 10,
         verbose: bool = False,
         custom_filter: Filter | None = None,
     ) -> dict[str, Route | VerboseRoute]:
         if not end_ids:
             return {}
+
+        if allowed_modes is None:
+            allowed_modes = list(self.TransportModes.values())
 
         target_ids = set(end_ids)
 
@@ -557,11 +642,13 @@ class RouteGraph:
 
         routes: dict[str, Route | VerboseRoute] = {}
 
+        primary_metric = self._primary_metric(optimization_metric)
+
         for dst, (path_node, acc_metrics) in results.items():
             routes[dst] = self._build_route(
                 path_node,
                 acc_metrics,
-                optimization_metric,
+                primary_metric,
                 verbose,
             )
 
