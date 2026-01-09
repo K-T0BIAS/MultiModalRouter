@@ -842,7 +842,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         route = graph.find_shortest_path(
             'A',
             'J',
-            allowed_modes=['mv'],
+            allowed_modes=None, # tests default
             optimization_metric=['hops', 'distance'],
             verbose=True,
         )
