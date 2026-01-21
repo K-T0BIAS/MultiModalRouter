@@ -11,8 +11,10 @@ import os
 import pandas as pd
 from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, VerboseRoute, PathNode
 from threading import Lock
-from collections import deque
+from collections import defaultdict, deque
 from itertools import count
+from typing import Tuple, TypeAlias
+
 
 
 class RouteGraph:
@@ -411,14 +413,27 @@ class RouteGraph:
         self,
         start_id: str,
         target_ids: set[str],
-        allowed_modes: list[str],
+        allowed_modes: list[str] | None,
         optimization_metric: OptimizationMetric | tuple,
         max_segments: int,
         custom_filter: Filter | None,
     ):
-        counter = count()
+        """
+        implements pareto dijkstra on the graph
+        """
 
+        counter = count()
         priority_spec = self._build_priority_spec(optimization_metric)
+
+        def dominates(p1: tuple, p2: tuple) -> bool:
+            """Return True if p1 dominates p2 (<= all, < at least one)."""
+            strictly_better = False
+            for a, b in zip(p1, p2):
+                if a > b:
+                    return False
+                if a < b:
+                    strictly_better = True
+            return strictly_better
 
         pq: list[tuple[tuple, int, PathNode, EdgeMetadata]] = []
 
@@ -438,14 +453,17 @@ class RouteGraph:
             prev=None,
         )
 
-        start_priority = self._compute_priority(start_path, start_metrics, priority_spec)
-        heapq.heappush(pq, (start_priority, next(counter), start_path, start_metrics))
+        start_priority = self._compute_priority(
+            start_path, start_metrics, priority_spec
+        )
 
-        # best lexicographic priority seen per hub
-        visited: dict[str, tuple] = {}
+        heapq.heappush(
+            pq, (start_priority, next(counter), start_path, start_metrics)
+        )
 
-        # best result per target
-        results: dict[str, tuple[PathNode, EdgeMetadata, tuple]] = {}
+        labels: dict[str, list[tuple]] = defaultdict(list)
+
+        results: dict[str, list[tuple[PathNode, EdgeMetadata, tuple]]] = defaultdict(list)
 
         if allowed_modes is None:
             allowed_modes = list(self.TransportModes.values())
@@ -457,17 +475,21 @@ class RouteGraph:
             hub_id = path_node.hub_id
             path_len = path_node.length
 
-            prev_priority = visited.get(hub_id)
-            if prev_priority is not None and prev_priority <= priority:
+            # check if this label is already dominated
+            if any(dominates(p, priority) for p in labels[hub_id]):
                 continue
-            visited[hub_id] = priority
 
-            # record result if this hub is a target
+            # remove labels dominated by this one
+            labels[hub_id] = [
+                p for p in labels[hub_id] if not dominates(priority, p)
+            ]
+            labels[hub_id].append(priority)
+
+            # if this is a target hub add the path to the result
             if hub_id in target_ids:
-                prev = results.get(hub_id)
-                if prev is None or priority < prev[2]:
-                    results[hub_id] = (path_node, acc_metrics, priority)
-
+                results[hub_id].append((path_node, acc_metrics, priority))
+            
+            # early stop if the path is too long
             if path_len >= max_segments:
                 continue
 
@@ -475,18 +497,22 @@ class RouteGraph:
             if current_hub is None:
                 continue
 
+            # for each outgoing connection
             for mode in allowed_modes:
+                # if no edge with this mode exists skip it
                 if mode not in current_hub.outgoing:
                     continue
-
+                # iter over the connections with this mode
                 for next_hub_id, conn_metrics in current_hub.outgoing[mode].items():
                     if conn_metrics is None:
                         continue
 
+                    # get the hub
                     next_hub = self.getHubById(next_hub_id)
-                    if next_hub is None:
+                    if next_hub is None: # failsave if hub state is invalid
                         continue
-
+                    
+                    # if present apply the filter
                     if custom_filter is not None:
                         if not custom_filter.filter(
                             current_hub,
@@ -496,11 +522,15 @@ class RouteGraph:
                         ):
                             continue
 
+                    # accumulate metrics
                     new_acc_metrics = EdgeMetadata(
                         transportMode=None,
                         **acc_metrics.metrics,
                     )
+
                     for k, v in conn_metrics.metrics.items():
+                        # accumulate the numeric metrics
+                        # update the string metrics
                         if isinstance(v, (int, float)):
                             new_acc_metrics.metrics[k] = (
                                 new_acc_metrics.metrics.get(k, 0) + v
@@ -508,6 +538,7 @@ class RouteGraph:
                         else:
                             new_acc_metrics.metrics[k] = v
 
+                    # create a new pathnode to save the sub path
                     new_path_node = PathNode(
                         hub_id=next_hub_id,
                         mode=mode,
@@ -515,15 +546,32 @@ class RouteGraph:
                         prev=path_node,
                     )
 
-                    new_priority = self._compute_priority(new_path_node, new_acc_metrics, priority_spec)
-
-                    heapq.heappush(
-                        pq,
-                        (new_priority, next(counter), new_path_node, new_acc_metrics),
+                    # get the priority value for this path
+                    new_priority = self._compute_priority(
+                        new_path_node, new_acc_metrics, priority_spec
                     )
 
-        # strip priority from results (external behavior unchanged)
-        return {k: (v[0], v[1]) for k, v in results.items()}
+                    # save to pq
+                    heapq.heappush(
+                        pq,
+                        (
+                            new_priority,
+                            next(counter),
+                            new_path_node,
+                            new_acc_metrics,
+                        ),
+                    )
+
+        # build the final results
+        final_results: dict[str, tuple[PathNode, EdgeMetadata]] = {}
+
+        # collect the best path for each hub
+        for hub_id, entries in results.items():
+            best = min(entries, key=lambda e: e[2])
+            final_results[hub_id] = (best[0], best[1])
+
+        return final_results
+
 
     def _build_route(
         self,
