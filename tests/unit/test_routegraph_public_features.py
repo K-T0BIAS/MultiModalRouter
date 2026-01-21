@@ -1015,3 +1015,109 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
         # long chain is rejected by filter; direct path wins lexicographically
         path_nodes = [n[0] for n in route.path]
         self.assertEqual(path_nodes, ['A', 'K'])
+
+    def test_multi_target_pareto_prefix_preservation(self):
+        """
+        Ensures that non-dominated prefixes are preserved
+        when searching multiple targets simultaneously.
+        """
+
+        rows = [
+            # A -> B fast but expensive
+            ('A', 'B', 1, 0, 0, 1, 0),
+
+            # A -> C slow but cheap
+            ('A', 'C', 5, 0, 0, 0, 5),
+
+            # B only leads to T1
+            ('B', 'T1', 100, 1, 0, 2, 0),
+
+            # C only leads to T2 cheaply
+            ('C', 'T2', 1, 0, 5, 0, 6),
+        ]
+
+        df = pd.DataFrame(
+            rows,
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+        )
+
+        path = os.path.join(self.temp_dir.name, 'pareto_multi_target.csv')
+        df.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=200,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        routes = graph.find_shortest_paths(
+            start_id='A',
+            end_ids={'T1', 'T2'},
+            allowed_modes=['mv'],
+            optimization_metric=['distance'],
+            verbose=True,
+        )
+
+        # assert that all targets are found
+        self.assertIn('T1', routes)
+        self.assertIn('T2', routes)
+
+        # check paths
+        self.assertEqual(
+            [n[0] for n in routes['T1'].path],
+            ['A', 'B', 'T1']
+        )
+        self.assertEqual(
+            [n[0] for n in routes['T2'].path],
+            ['A', 'C', 'T2']
+        )
+
+    def test_deferred_pareto_improvement(self):
+        """
+        Path that is worse early but better later must survive.
+        """
+
+        rows = [
+            ('A', 'B', 1, 0, 0, 1, 0),   # fast, expensive later
+            ('A', 'C', 5, 0, 0, 0, 5),   # slow, cheap later
+            ('B', 'D', 100, 1, 0, 2, 0),
+            ('C', 'D', 1, 0, 5, 0, 6),
+        ]
+
+        df = pd.DataFrame(rows, columns=[
+            'source', 'destination', 'distance',
+            'source_lat', 'source_lng',
+            'destination_lat', 'destination_lng',
+        ])
+
+        path = os.path.join(self.temp_dir.name, 'deferred.csv')
+        df.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=200,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        route = graph.find_shortest_path(
+            'A',
+            'D',
+            allowed_modes=['mv'],
+            optimization_metric=['distance'],
+        )
+
+        # must be A -> C -> D, NOT A -> B -> D
+        self.assertEqual(
+            [n[0] for n in route.path],
+            ['A', 'C', 'D']
+        )
