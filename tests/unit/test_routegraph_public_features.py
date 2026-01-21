@@ -1180,3 +1180,48 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
 
         # assert path is optimal
         self.assertEqual(route.totalMetrics.getMetric('distance'), 2)
+
+    def test_zero_cost_cycle_does_not_explode(self):
+        """
+        Regression test:
+        Zero-cost cycles must not cause infinite Pareto expansion.
+        """
+
+        rows = [
+            ('A', 'B', 1, 0, 0, 1, 0),
+            ('B', 'C', 1, 1, 0, 2, 0),
+            ('C', 'B', 0, 2, 0, 1, 0),  # zero-cost cycle
+        ]
+
+        df = pd.DataFrame(
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+            data=rows,
+        )
+
+        path = os.path.join(self.temp_dir.name, 'zero_cycle.csv')
+        df.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=100,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        route = graph.find_shortest_path(
+            start_id='A',
+            end_id='C',
+            allowed_modes=['mv'],
+            optimization_metric=['distance'],
+            max_segments=20,
+            verbose=False,
+        )
+
+        self.assertIsNotNone(route)
+        self.assertEqual(route.totalMetrics.getMetric('distance'), 2)
