@@ -13,8 +13,6 @@ from .dataclasses import Hub, EdgeMetadata, OptimizationMetric, Route, Filter, V
 from threading import Lock
 from collections import defaultdict, deque
 from itertools import count
-from typing import Tuple, TypeAlias
-
 
 
 class RouteGraph:
@@ -419,11 +417,20 @@ class RouteGraph:
         custom_filter: Filter | None,
     ):
         """
-        implements pareto dijkstra on the graph
+        Pareto Dijkstra with safety guarantees:
+        - Correct for single and multi-target
+        - Guaranteed termination
+        - Cycle-safe
         """
 
         counter = count()
+
+        # create the priority spec
         priority_spec = self._build_priority_spec(optimization_metric)
+
+        # ensure hops is in the priority spec (for safety)
+        if "hops" not in priority_spec:
+            priority_spec = (*priority_spec, "hops")
 
         def dominates(p1: tuple, p2: tuple) -> bool:
             """Return True if p1 dominates p2 (<= all, < at least one)."""
@@ -446,6 +453,7 @@ class RouteGraph:
             }
         )
 
+        # create initial node
         start_path = PathNode(
             hub_id=start_id,
             mode="",
@@ -461,9 +469,17 @@ class RouteGraph:
             pq, (start_priority, next(counter), start_path, start_metrics)
         )
 
+        # hub_id: list of non dominated labels
         labels: dict[str, list[tuple]] = defaultdict(list)
 
+        # target_id: path
         results: dict[str, list[tuple[PathNode, EdgeMetadata, tuple]]] = defaultdict(list)
+
+        # remaining target tracker for early termination
+        remaining_targets = set(target_ids)
+
+        # limit labels per hub
+        MAX_LABELS_PER_HUB = 50
 
         if allowed_modes is None:
             allowed_modes = list(self.TransportModes.values())
@@ -475,21 +491,30 @@ class RouteGraph:
             hub_id = path_node.hub_id
             path_len = path_node.length
 
-            # check if this label is already dominated
+            # reject dominated labels
             if any(dominates(p, priority) for p in labels[hub_id]):
                 continue
 
-            # remove labels dominated by this one
+            # prune labels dominated by this one
             labels[hub_id] = [
                 p for p in labels[hub_id] if not dominates(priority, p)
             ]
             labels[hub_id].append(priority)
 
-            # if this is a target hub add the path to the result
-            if hub_id in target_ids:
+            # limit labels
+            if len(labels[hub_id]) > MAX_LABELS_PER_HUB:
+                labels[hub_id] = labels[hub_id][:MAX_LABELS_PER_HUB]
+
+            # if this hub is a target add to results
+            if hub_id in remaining_targets:
                 results[hub_id].append((path_node, acc_metrics, priority))
-            
-            # early stop if the path is too long
+                remaining_targets.remove(hub_id)
+
+                # stop once all targets are found
+                if not remaining_targets:
+                    break
+
+            # depth guard
             if path_len >= max_segments:
                 continue
 
@@ -497,22 +522,18 @@ class RouteGraph:
             if current_hub is None:
                 continue
 
-            # for each outgoing connection
             for mode in allowed_modes:
-                # if no edge with this mode exists skip it
                 if mode not in current_hub.outgoing:
                     continue
-                # iter over the connections with this mode
+
                 for next_hub_id, conn_metrics in current_hub.outgoing[mode].items():
                     if conn_metrics is None:
                         continue
 
-                    # get the hub
                     next_hub = self.getHubById(next_hub_id)
-                    if next_hub is None: # failsave if hub state is invalid
+                    if next_hub is None:
                         continue
-                    
-                    # if present apply the filter
+
                     if custom_filter is not None:
                         if not custom_filter.filter(
                             current_hub,
@@ -529,8 +550,6 @@ class RouteGraph:
                     )
 
                     for k, v in conn_metrics.metrics.items():
-                        # accumulate the numeric metrics
-                        # update the string metrics
                         if isinstance(v, (int, float)):
                             new_acc_metrics.metrics[k] = (
                                 new_acc_metrics.metrics.get(k, 0) + v
@@ -538,7 +557,6 @@ class RouteGraph:
                         else:
                             new_acc_metrics.metrics[k] = v
 
-                    # create a new pathnode to save the sub path
                     new_path_node = PathNode(
                         hub_id=next_hub_id,
                         mode=mode,
@@ -546,12 +564,10 @@ class RouteGraph:
                         prev=path_node,
                     )
 
-                    # get the priority value for this path
                     new_priority = self._compute_priority(
                         new_path_node, new_acc_metrics, priority_spec
                     )
 
-                    # save to pq
                     heapq.heappush(
                         pq,
                         (
@@ -562,15 +578,15 @@ class RouteGraph:
                         ),
                     )
 
-        # build the final results
+        # create final results
         final_results: dict[str, tuple[PathNode, EdgeMetadata]] = {}
 
-        # collect the best path for each hub
         for hub_id, entries in results.items():
             best = min(entries, key=lambda e: e[2])
             final_results[hub_id] = (best[0], best[1])
 
         return final_results
+
 
 
     def _build_route(
