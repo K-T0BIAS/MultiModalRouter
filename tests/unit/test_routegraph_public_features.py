@@ -1121,3 +1121,62 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             [n[0] for n in route.path],
             ['A', 'C', 'D']
         )
+
+    def test_single_target_pareto_terminates_early(self):
+        """
+        Regression test:
+        Single-target Pareto Dijkstra must terminate immediately
+        after the target is settled (no full frontier expansion).
+        """
+
+        rows = []
+
+        # create many equivalent paths
+        for i in range(20):
+            rows.append(('A', f'B{i}', 1, 0, 0, i, 0))
+            rows.append((f'B{i}', 'C', 1, i, 0, 20, 0))
+
+        # add cycles to stress test
+        for i in range(20):
+            rows.append((f'B{i}', f'B{i}', 0, i, 0, i, 0))  # zero-cost self-loop
+
+        df = pd.DataFrame(
+            columns=[
+                'source', 'destination', 'distance',
+                'source_lat', 'source_lng',
+                'destination_lat', 'destination_lng',
+            ],
+            data=rows,
+        )
+
+        path = os.path.join(self.temp_dir.name, 'pareto_single_target.csv')
+        df.to_csv(path, index=False)
+
+        graph = RouteGraph(
+            maxDistance=100,
+            transportModes={'H': 'mv'},
+            dataPaths={'H': path},
+            drivingEnabled=False,
+        )
+
+        graph.build()
+
+        route = graph.find_shortest_path(
+            start_id='A',
+            end_id='C',
+            allowed_modes=['mv'],
+            optimization_metric=['distance'],
+            max_segments=10,
+            verbose=False,
+        )
+
+        # assert that a path was found
+        self.assertIsNotNone(route)
+
+        # assert path is correct
+        hubs = [n[0] for n in route.path]
+        self.assertEqual(hubs[0], 'A')
+        self.assertEqual(hubs[-1], 'C')
+
+        # assert path is optimal
+        self.assertEqual(route.totalMetrics.getMetric('distance'), 2)
