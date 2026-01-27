@@ -7,7 +7,6 @@ import pandas as pd
 import os
 import contextlib
 import io
-import random
 
 
 class TestRouteGraphInit(unittest.TestCase):
@@ -243,8 +242,8 @@ class TestRouteGraphInit(unittest.TestCase):
                 ],
                 destCoordKeys=[
                     "destination_lat",
-                    "destination_lng",
                     "dst_y",
+                    "destination_lng",
                     "dst_x",
                 ],
             )
@@ -271,7 +270,6 @@ class TestRouteGraphInit(unittest.TestCase):
                 graph.getHub("RAIL", "R2").coords,
                 [3000, 4000, 3, 4],
             )
-
 
 
 if __name__ == '__main__':
