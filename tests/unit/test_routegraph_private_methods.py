@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+import warnings
 from multimodalrouter import RouteGraph, Hub
 import os
 import tempfile
@@ -35,8 +36,13 @@ class TestRouteGraphPrivateMethods(unittest.TestCase):
 
         # remove the print output from build
         f = io.StringIO()
-        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+        with (warnings.catch_warnings(),
+            contextlib.redirect_stdout(f),
+            contextlib.redirect_stderr(f)):
+
+            warnings.simplefilter("ignore")
             cls.mainGraph.build()
+
 
     @classmethod
     def tearDownClass(cls):

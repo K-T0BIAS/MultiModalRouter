@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+import warnings
 from multimodalrouter import RouteGraph, Hub, Filter, EdgeMetadata, PathNode
 import os
 import tempfile
@@ -20,7 +21,7 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             columns=['source', 'destination', 'distance', 'source_lat', 'source_lng', 'destination_lat', 'destination_lng'],
             data=[('A', 'B', 2, 1, 1, 1, 3),
                   ('C', 'D', 1, 2, 1, 1, 4),
-                  ('B', 'D', 1, 3, 1, 1, 4)]
+                  ('B', 'D', 1, 1, 3, 1, 4)]
         )
 
         testDf.to_csv(cls.temp_file_path, index=False)
@@ -1158,7 +1159,6 @@ class TestRouteGraphPublicFeatures(unittest.TestCase):
             dataPaths={'H': path},
             drivingEnabled=False,
         )
-
         graph.build()
 
         route = graph.find_shortest_path(
