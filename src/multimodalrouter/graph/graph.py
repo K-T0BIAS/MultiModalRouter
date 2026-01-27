@@ -36,8 +36,8 @@ class RouteGraph:
         # a list of coordinate names for the destination coords in the datasets (name to dataset matching is automatic)
         destCoordKeys: list[str] = ["destination_lat", "destination_lng"],
     ):
-        self.sourceCoordKeys = set(sourceCoordKeys)
-        self.destCoordKeys = set(destCoordKeys)
+        self.sourceCoordKeys = sourceCoordKeys
+        self.destCoordKeys = destCoordKeys
 
         self.compressed = compressed
         self.extraMetricsKeys = extraMetricsKeys
@@ -258,8 +258,8 @@ class RouteGraph:
             data = self._loadData(hubType)
             added = set()
 
-            thisSourceKeys = self.sourceCoordKeys & set(data.columns)
-            thisDestinationKeys = self.destCoordKeys & set(data.columns)
+            thisSourceKeys = [k for k in self.sourceCoordKeys if k in data.columns]
+            thisDestinationKeys = [k for k in self.destCoordKeys if k in data.columns]
 
             # get required and extra columns
             required_cols = {
@@ -270,13 +270,10 @@ class RouteGraph:
             }
 
             # collect extra data from the dataset columns that are not required but marked as extra
-            extra_metric_cols = []
-            for m in self.extraMetricsKeys:
-                if m not in required_cols:
-                    try:
-                        extra_metric_cols.append(m)
-                    except KeyError:
-                        continue
+            extra_metric_cols = [
+                m for m in self.extraMetricsKeys
+                if m in data.columns and m not in required_cols
+            ]
 
             for row in tqdm(data.itertuples(index=False), desc=f"Generating {hubType} Hubs", unit="hub"):
                 # create hubs if they don't exist
@@ -586,8 +583,6 @@ class RouteGraph:
             final_results[hub_id] = (best[0], best[1])
 
         return final_results
-
-
 
     def _build_route(
         self,
