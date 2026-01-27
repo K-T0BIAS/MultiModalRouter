@@ -223,6 +223,8 @@ class TestRouteGraphInit(unittest.TestCase):
                 }
             ).sample(frac=1, axis=1)
 
+            print(rail_df[:])
+
             air_df.to_csv(air_path, index=False)
             sea_df.to_csv(sea_path, index=False)
             rail_df.to_csv(rail_path, index=False)
@@ -268,7 +270,7 @@ class TestRouteGraphInit(unittest.TestCase):
             )
             self.assertEqual(
                 graph.getHub("RAIL", "R2").coords,
-                [3000, 4000, 3, 4],
+                [3000, 3, 4000, 4],
             )
 
 

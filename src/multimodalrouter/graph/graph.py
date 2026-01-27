@@ -281,11 +281,36 @@ class RouteGraph:
                     hub = Hub(coords=[getattr(row, k) for k in thisSourceKeys], id=row.source, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.source)
+                elif row.source not in self.Graph[hubType].keys():
+                    other_type = self.getHubById(row.source)
+                    print(
+                        f"Hub {row.source}, with type {hubType}, already exists as a {other_type.hubType} hub and will be skipped. \
+                        \n If you want to add it as a {hubType} hub, please delete or rename the other hub first."
+                    )
+                elif self.Graph[hubType][row.source].coords != [getattr(row, k) for k in thisSourceKeys]:
+                    print(
+                        f"Hub {row.source}, with type {hubType}, was found with two different coordinates. \
+                        \nThis may be due to a data error or an ordering error in the source/dest-CoordKeys.\
+                        \nThe graph will ignore this hub and keep only the first instance."
+                    )
+
 
                 if row.destination not in added:
                     hub = Hub(coords=[getattr(row, k) for k in thisDestinationKeys], id=row.destination, hubType=hubType)
                     self.addHub(hub)
                     added.add(row.destination)
+                elif row.source not in self.Graph[hubType].keys():
+                    other_type = self.getHubById(row.source)
+                    print(
+                        f"Hub {row.source}, with type {hubType}, already exists as a {other_type.hubType} hub and will be skipped. \
+                        \n If you want to add it as a {hubType} hub, please delete or rename the other hub first."
+                    )
+                elif self.Graph[hubType][row.source].coords != [getattr(row, k) for k in thisSourceKeys]:
+                    print(
+                        f"Hub {row.source}, with type {hubType}, was found with two different coordinates. \
+                        \nThis may be due to a data error or an ordering error in the source/dest-CoordKeys.\
+                        \nThe graph will ignore this hub and keep only the first instance."
+                    )
 
                 # get extra metrics
                 extra_metrics = {
